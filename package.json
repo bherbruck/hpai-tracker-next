@@ -1,0 +1,46 @@
+{
+  "name": "hpai-tracker",
+  "version": "0.1.0",
+  "private": true,
+  "prisma": {
+    "seed": "ts-node prisma/seed"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "format": "prettier --ignore-path .gitignore --write --plugin-search-dir=. ."
+  },
+  "dependencies": {
+    "@prisma/client": "^3.11.0",
+    "next": "12.1.0",
+    "react": "17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "devDependencies": {
+    "@heroicons/react": "^1.0.6",
+    "@types/node": "^17.0.21",
+    "@types/papaparse": "^5.3.2",
+    "@types/react": "17.0.41",
+    "@types/react-dom": "^17.0.14",
+    "@types/react-leaflet": "^2.8.2",
+    "autoprefixer": "^10.4.4",
+    "daisyui": "^2.11.0",
+    "email-validator": "^2.0.4",
+    "eslint": "8.11.0",
+    "eslint-config-next": "12.1.0",
+    "geojson": "^0.5.0",
+    "leaflet": "^1.7.1",
+    "papaparse": "^5.3.2",
+    "postcss": "^8.4.12",
+    "prettier": "^2.6.0",
+    "prisma": "^3.11.0",
+    "react-leaflet": "^3.2.5",
+    "react-use": "^17.3.2",
+    "swr": "^1.2.2",
+    "tailwindcss": "^3.0.23",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.2"
+  }
+}

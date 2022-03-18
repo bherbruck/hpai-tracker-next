@@ -1,0 +1,36 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model HpaiCase {
+  id              String   @id @default(cuid())
+  dateConfirmed   DateTime
+  state           String
+  county          String
+  flockType       String
+  flockSize       Int?
+  pressReleaseUrl String?
+}
+
+model CountyGeometry {
+  id       String @id @default(cuid())
+  county   String
+  state    String
+  geometry Json
+
+  @@unique([county, state])
+}
+
+model User {
+  id     String  @id @default(cuid())
+  email  String  @unique
+  active Boolean @default(true)
+}
