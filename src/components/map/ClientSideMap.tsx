@@ -1,5 +1,3 @@
 import dynamic from 'next/dynamic'
 
-export const Map = dynamic(() => import('./HpaiMap'), {
-  ssr: false,
-})
+export const Map = dynamic(() => import('./HpaiMap'), { ssr: false })

@@ -11,24 +11,23 @@ import { SubscribeModal } from '$components/SubscribeModal'
 import { SelectionModal } from '$components/SelectionModal'
 import { Map } from '$components/map/ClientSideMap'
 import useSWR from 'swr'
-import type { HpaiCaseAggregate } from '$lib/types'
+import type { HpaiCaseGeometry } from '$lib/types'
 import { useState } from 'react'
 
-const Home: NextPage = () => {
+const Home: NextPage = (props) => {
   const aboutModal = useModal()
   const subscribeModal = useModal()
   const selectionModal = useModal()
 
   // maybe load this server-side?
-  const { data: hpaiCaseAggregates, error } = useSWR<HpaiCaseAggregate[]>(
-    '/api/hpai-cases',
+  const { data: hpaiCaseGeometries, error } = useSWR<HpaiCaseGeometry[]>(
+    '/api/hpai-case-geometry',
     (url: string) => fetch(url).then((r) => r.json())
   )
 
-  const [selectedHpaiCases, setSelectedHpaiCases] =
-    useState<HpaiCaseAggregate>()
+  const [selectedHpaiCases, setSelectedHpaiCases] = useState<HpaiCaseGeometry>()
 
-  const handleSelection = (hpaiCases: HpaiCaseAggregate) => {
+  const handleSelection = (hpaiCases: HpaiCaseGeometry) => {
     setSelectedHpaiCases(hpaiCases)
     selectionModal.open()
   }
@@ -64,7 +63,7 @@ const Home: NextPage = () => {
 
       <div className="h-full w-full">
         <Map
-          hpaiCaseAggregates={hpaiCaseAggregates}
+          hpaiCaseGeometries={hpaiCaseGeometries}
           onCountyClick={handleSelection}
         />
       </div>
