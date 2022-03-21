@@ -11,9 +11,9 @@ export const Navbar = (props: NavbarProps) => {
   return (
     <div className="navbar w-auto bg-base-100 backdrop-blur absolute top-2 left-2 right-2 rounded-box z-[10000]">
       <div className="navbar-start">
-        <button className="btn btn-ghost btn-disabled normal-case text-xl">
+        <div className="btn btn-ghost btn-disabled normal-case text-xl">
           {props.title ?? 'HPAI Tracker'}
-        </button>
+        </div>
       </div>
       <div className="navbar-center" />
 
