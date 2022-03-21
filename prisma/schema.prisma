@@ -32,5 +32,5 @@ model CountyGeometry {
 model User {
   id     String  @id @default(cuid())
   email  String  @unique
-  active Boolean @default(true)
+  active Boolean @default(false)
 }
