@@ -55,6 +55,21 @@ const Home: NextPage = (props) => {
           United States by county. Click on a county to see the cases in the
           selected county.
         </p>
+        <p>
+          Data is provided by{' '}
+          <a className="link" href={process.env.NEXT_PUBLIC_HPAI_CSV_URL}>
+            USDA APHIS
+          </a>
+        </p>
+        <p>
+          Source code is abailable at{' '}
+          <a
+            className="link"
+            href="https://github.com/bherbruck/hpai-tracker-next"
+          >
+            bherbruck on github
+          </a>
+        </p>
       </Modal>
 
       <SubscribeModal {...subscribeModal} />
