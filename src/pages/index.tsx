@@ -73,12 +73,12 @@ const Home: NextPage = (props) => {
           </a>
         </p>
         <p>
-          Source code is abailable at{' '}
+          Source code is available at{' '}
           <a
             className="link"
             href="https://github.com/bherbruck/hpai-tracker-next"
           >
-            bherbruck on github
+            github.com/bherbruck/hpai-tracker-next
           </a>
         </p>
       </Modal>
