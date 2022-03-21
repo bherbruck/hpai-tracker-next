@@ -1,6 +1,7 @@
+import { NextPage } from 'next'
 import Head from 'next/head'
 
-const PrivacyPolicy = (props) => (
+const PrivacyPolicy: NextPage = (props) => (
   <>
     <Head>
       <title>Privacy Policy</title>
