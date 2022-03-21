@@ -1,0 +1,17 @@
+name: update-hpai-cases
+
+on:
+  workflow_dispatch:
+  schedule:
+    # every 10 minutes
+    - cron: '*/10 * * * *'
+
+jobs:
+  cron:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call the /api/update endpoint
+        run: |
+          curl --request GET \
+          --url '${{ secrets.UPDATE_ENDPOINT }}' \
+          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
