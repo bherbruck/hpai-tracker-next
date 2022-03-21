@@ -12,5 +12,5 @@ EMAIL_USER="user@domain.com"
 EMAIL_PASS="my-email-password"
 EMAIL_API_KEY="my-google-gmail-api-key"
 API_SECRET_KEY="super-secret-key"
-GTAG_ID="G-0123456789"
+NEXT_PUBLIC_GTAG_ID="G-0123456789"
 ```
