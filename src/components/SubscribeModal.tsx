@@ -8,26 +8,27 @@ import { validate as isValidEmail } from 'email-validator'
 export const SubscribeModal = (props: ModalProps) => {
   const [user, setUser] = useLocalStorage<User | null>('user', null)
   const [email, setEmail] = useState(user?.email ?? '')
+  const [error, setError] = useState<string | null>(null)
 
   const subscribe = async () => {
-    if (!isValidEmail(email)) return
+    if (!isValidEmail(email)) return setError('Invalid email')
     const res = await fetch('/api/users', {
       method: 'POST',
       body: JSON.stringify({ email }),
     })
     const { user, error } = await res.json()
-    if (error) return console.error(error)
+    if (error) return setError(error)
     setUser(user)
   }
 
   const unsubscribe = async () => {
-    if (!isValidEmail(email)) return
+    if (!isValidEmail(email)) return setError('Invalid email')
     const res = await fetch('/api/users', {
       method: 'DELETE',
       body: JSON.stringify({ email }),
     })
     const { error } = await res.json()
-    if (error) return console.error(error)
+    if (error) return setError(error)
     setUser(null)
     setEmail('')
   }
@@ -43,7 +44,7 @@ export const SubscribeModal = (props: ModalProps) => {
           </p>
         ) : (
           <h4 className="text-md">
-            Get email updates when new HPAI cases are added
+            Get email notifications when new HPAI cases are added
           </h4>
         )}
       </div>
@@ -60,6 +61,17 @@ export const SubscribeModal = (props: ModalProps) => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
+        </div>
+        <div className="label">
+          <span className="label-text-alt"></span>
+          <a
+            className="label-text-alt"
+            href="/privacy-policy"
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            Privacy Policy
+          </a>
         </div>
       </div>
 
