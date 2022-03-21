@@ -1,10 +1,10 @@
 import { type ModalProps, Modal } from './Modal'
 import { FC } from 'react'
-import type { HpaiCaseAggregate } from '$lib/types'
+import type { HpaiCaseGeometry } from '$lib/types'
 import { numberWithCommas } from '$lib/number-comma'
 
 type SelectionModalProps = ModalProps & {
-  hpaiCases?: HpaiCaseAggregate
+  hpaiCases?: HpaiCaseGeometry
 }
 
 export const SelectionModal: FC<SelectionModalProps> = ({

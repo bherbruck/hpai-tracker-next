@@ -2,18 +2,18 @@ import { MapContainer, TileLayer, GeoJSON, Tooltip } from 'react-leaflet'
 import { useLocalStorage } from 'react-use'
 import { MapEvents } from './MapEvents'
 import type { LeafletEvent } from 'leaflet'
-import { HpaiCaseAggregate } from '$lib/types'
+import { HpaiCaseGeometry } from '$lib/types'
 import { FC } from 'react'
 
 export type Location = { zoom: number; lat: number; lng: number }
 
 export type HpaiMapProps = {
-  hpaiCaseAggregates?: HpaiCaseAggregate[]
-  onCountyClick?: (hpaiCaseAggregate: HpaiCaseAggregate) => void
+  hpaiCaseGeometries?: HpaiCaseGeometry[]
+  onCountyClick?: (hpaiCaseGeometry: HpaiCaseGeometry) => void
 }
 
 export const HpaiMap: FC<HpaiMapProps> = ({
-  hpaiCaseAggregates,
+  hpaiCaseGeometries,
   onCountyClick,
 }) => {
   const [location, setLocation] = useLocalStorage<Location>('location', {
@@ -49,7 +49,7 @@ export const HpaiMap: FC<HpaiMapProps> = ({
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      {hpaiCaseAggregates?.map(({ state, county, geoJSON, cases }) => (
+      {hpaiCaseGeometries?.map(({ state, county, geoJSON, cases }) => (
         <GeoJSON
           key={JSON.stringify({ state, county })}
           data={geoJSON}
