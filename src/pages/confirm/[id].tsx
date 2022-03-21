@@ -10,7 +10,7 @@ const Confirm: NextPage = (props) => {
   const { id } = router.query
 
   const { data, error } = useSWR<{ user: User }>(
-    `/api/confirm/${id}`,
+    `/api/confirm?id=${id}`,
     (url: string) => fetch(url).then((r) => r.json())
   )
 

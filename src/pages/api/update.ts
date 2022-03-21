@@ -1,14 +1,16 @@
-import { methodHandler, errorResponse } from '$lib/method-handler'
 import { scrapeHpaiCases } from '$lib/scraper'
+import { sendEmail } from '$lib/email'
+import { prisma } from '$lib/prisma'
 import type { NextApiHandler } from 'next'
 
-const get: NextApiHandler = async (req, res) => {
+const handler: NextApiHandler = async (req, res) => {
   if (!process.env.API_SECRET_KEY || !process.env.NEXT_PUBLIC_HPAI_CSV_URL)
-    return errorResponse(res, 501)
+    return res.status(501).json({ error: 'Email not implemented' })
   const { authorization } = req.headers
-  if (!authorization) return errorResponse(res, 401)
+  if (!authorization) return res.status(401).json({ error: 'Unauthorized' })
   const [, apiKey] = authorization.split(' ')
-  if (apiKey !== process.env.API_SECRET_KEY) return errorResponse(res, 401)
+  if (apiKey !== process.env.API_SECRET_KEY)
+    return res.status(401).json({ error: 'Unauthorized' })
 
   console.log('refreshing...')
 
@@ -16,10 +18,47 @@ const get: NextApiHandler = async (req, res) => {
 
   console.log('refreshed')
 
+  if (hpaiCases.length > 0) {
+    if (!req.headers.host)
+      return res.status(500).json({ error: 'Error sending confirmation email' })
+
+    // TODO: find a way to figure out http or https
+    const homeUrl = `http://${new URL(req.headers.host)}`
+
+    const newCasesCount = hpaiCases.length
+
+    const subject = `${newCasesCount} new HPAI case${
+      newCasesCount > 1 ? 's' : ''
+    }`
+
+    const subscribers = await prisma.user.findMany({ where: { active: true } })
+
+    const { error } = await sendEmail({
+      bcc: subscribers.map((s) => s.email),
+      subject,
+      html: `
+      <p>
+        ${subject}
+      </p>
+      <p>
+        <a href="${homeUrl}">
+          Go to the map
+        </a>
+      </p>
+      
+    `,
+    })
+
+    if (error) {
+      console.error(error)
+      return res.status(500).json({ error: 'Error sending confirmation email' })
+    }
+  }
+
   return res.json({
     message: 'refreshed',
     newCases: hpaiCases,
   })
 }
 
-export default methodHandler({ get })
+export default handler

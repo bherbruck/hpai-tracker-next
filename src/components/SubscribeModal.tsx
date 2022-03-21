@@ -15,12 +15,12 @@ export const SubscribeModal = (props: ModalProps) => {
   const subscribe = async () => {
     setError(null)
     setIsLoading(true)
-    const res = await fetch('/api/users', {
+    const res = await fetch(`/api/subscribe`, {
       method: 'POST',
       body: JSON.stringify({ email }),
     })
-    setIsLoading(false)
     const { user, error } = await res.json()
+    setIsLoading(false)
     if (error) return setError(error)
     setUser(user)
   }
@@ -28,19 +28,18 @@ export const SubscribeModal = (props: ModalProps) => {
   const unsubscribe = async () => {
     setError(null)
     setIsLoading(true)
-    const res = await fetch('/api/users', {
-      method: 'DELETE',
+    const res = await fetch(`/api/unsubscribe`, {
+      method: 'POST',
       body: JSON.stringify({ email }),
     })
-    setIsLoading(false)
     const { error } = await res.json()
+    setIsLoading(false)
     if (error) {
       setError(error)
       setUser(null)
       return
     }
     setUser(null)
-    setEmail('')
   }
 
   return (

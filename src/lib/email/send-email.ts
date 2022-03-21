@@ -8,6 +8,8 @@ export async function sendEmail(
   const user = process.env.EMAIL_USER
   const pass = process.env.EMAIL_PASS
   const accessToken = process.env.EMAIL_API_KEY
+  if (!user || !pass || !accessToken)
+    return { error: 'Email is not implemented' }
   try {
     const transporter = createTransport({
       service: 'gmail',
