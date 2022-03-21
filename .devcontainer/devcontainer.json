@@ -21,8 +21,6 @@
     "WillLuke.nextjs",
     "bradlc.vscode-tailwindcss",
     "rangav.vscode-thunder-client",
-    "ms-azuretools.vscode-docker",
-    "foxundermoon.shell-format",
     "cschleiden.vscode-github-actions"
   ],
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
