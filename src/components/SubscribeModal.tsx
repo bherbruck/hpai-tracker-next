@@ -3,45 +3,58 @@ import { MailIcon } from '@heroicons/react/outline'
 import { type ModalProps, Modal } from './Modal'
 import type { User } from '@prisma/client'
 import { useState } from 'react'
-import { validate as isValidEmail } from 'email-validator'
 
 export const SubscribeModal = (props: ModalProps) => {
   const [user, setUser] = useLocalStorage<User | null>('user', null)
   const [email, setEmail] = useState(user?.email ?? '')
   const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  // TODO: get the user from the server if in local storage
+  //       to check if confirmed
 
   const subscribe = async () => {
-    if (!isValidEmail(email)) return setError('Invalid email')
+    setError(null)
+    setIsLoading(true)
     const res = await fetch('/api/users', {
       method: 'POST',
       body: JSON.stringify({ email }),
     })
+    setIsLoading(false)
     const { user, error } = await res.json()
     if (error) return setError(error)
     setUser(user)
   }
 
   const unsubscribe = async () => {
-    if (!isValidEmail(email)) return setError('Invalid email')
+    setError(null)
+    setIsLoading(true)
     const res = await fetch('/api/users', {
       method: 'DELETE',
       body: JSON.stringify({ email }),
     })
+    setIsLoading(false)
     const { error } = await res.json()
-    if (error) return setError(error)
+    if (error) {
+      setError(error)
+      setUser(null)
+      return
+    }
     setUser(null)
     setEmail('')
   }
 
   return (
     <Modal {...props}>
-      <h3 className="font-bold text-lg pb-4">Subscribe (not implemented)</h3>
+      <h3 className="font-bold text-lg pb-4">Subscribe</h3>
 
       <div className="pb-2">
-        {user?.active ? (
-          <p>
-            You are subscribed as <b>{user?.email}</b>
-          </p>
+        {user?.email ? (
+          <>
+            <p>
+              You are subscribed as <b>{user?.email}</b>
+            </p>
+            <p>Check your email to confirm.</p>
+          </>
         ) : (
           <h4 className="text-md">
             Get email notifications when new HPAI cases are added
@@ -57,15 +70,20 @@ export const SubscribeModal = (props: ModalProps) => {
           <input
             type="email"
             placeholder="name@domain.com"
-            className="input input-bordered flex-1 w-full"
+            className={`input input-bordered flex-1 w-full
+            ${error ? 'input-error' : ''}
+            ${user?.email ? 'input-disabled' : ''}`}
+            disabled={!!user?.email}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
         <div className="label">
-          <span className="label-text-alt"></span>
+          <span className="label-text-alt text-error">
+            {error ? error : ''}
+          </span>
           <a
-            className="label-text-alt"
+            className="label-text-alt link"
             href="/privacy-policy"
             target="_blank"
             rel="noreferrer noopener"
@@ -76,12 +94,18 @@ export const SubscribeModal = (props: ModalProps) => {
       </div>
 
       <div className="modal-action">
-        {user?.active ? (
-          <button className="btn" onClick={unsubscribe}>
+        {user?.email ? (
+          <button
+            className={`btn ${isLoading ? 'loading' : ''}`}
+            onClick={unsubscribe}
+          >
             Unsubscribe
           </button>
         ) : (
-          <button className="btn" onClick={subscribe}>
+          <button
+            className={`btn ${isLoading ? 'loading' : ''}`}
+            onClick={subscribe}
+          >
             Subscribe
           </button>
         )}
