@@ -15,12 +15,13 @@ const handler: NextApiHandler = async (req, res) => {
   console.log('refreshing...')
 
   const hpaiCases = await scrapeHpaiCases(process.env.NEXT_PUBLIC_HPAI_CSV_URL)
+  const subscribers = await prisma.user.findMany({ where: { active: true } })
 
   console.log('refreshed')
 
-  if (hpaiCases.length > 0) {
+  if (hpaiCases.length > 0 && subscribers.length > 0) {
     if (!req.headers.host)
-      return res.status(500).json({ error: 'Error sending confirmation email' })
+      return res.status(500).json({ error: 'Error update email' })
 
     // TODO: find a way to figure out http or https
     const homeUrl = `http://${new URL(req.headers.host)}`
@@ -30,8 +31,6 @@ const handler: NextApiHandler = async (req, res) => {
     const subject = `${newCasesCount} new HPAI case${
       newCasesCount > 1 ? 's' : ''
     }`
-
-    const subscribers = await prisma.user.findMany({ where: { active: true } })
 
     const { error } = await sendEmail({
       bcc: subscribers.map((s) => s.email),
@@ -45,7 +44,6 @@ const handler: NextApiHandler = async (req, res) => {
           Go to the map
         </a>
       </p>
-      
     `,
     })
 
