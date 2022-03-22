@@ -8,10 +8,6 @@ export async function scrapeHpaiCases(url: string) {
   const existingHpaiCaseCount = await prisma.hpaiCase.count()
   const newHpaiCases = hpaiCases.slice(existingHpaiCaseCount)
 
-  console.log(`${newHpaiCases.length} new cases found`)
-
-  if (newHpaiCases.length <= 0) return newHpaiCases
-
   /**
    * TODO:
    * - create a new table for the import
@@ -25,7 +21,7 @@ export async function scrapeHpaiCases(url: string) {
   await prisma.hpaiCase.deleteMany()
   await prisma.hpaiCase.createMany({ data: hpaiCases })
 
-  console.log(`Refrehed all hpai cases created`)
+  console.log(`${newHpaiCases.length} new cases found`)
 
   return newHpaiCases
 }
