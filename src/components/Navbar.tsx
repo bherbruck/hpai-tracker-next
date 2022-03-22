@@ -19,7 +19,11 @@ export const Navbar = (props: NavbarProps) => {
 
       {/* about button */}
       <div className="navbar-end flex flex-row">
-        <button className="btn btn-ghost gap-1" onClick={props.onAboutClick}>
+        <button
+          className="btn btn-ghost gap-1"
+          onClick={props.onAboutClick}
+          aria-label="About"
+        >
           <InformationCircleIcon className="h-6 w-6" />
           <span className="hidden md:block">About</span>
         </button>
@@ -28,6 +32,7 @@ export const Navbar = (props: NavbarProps) => {
         <button
           className="btn btn-ghost gap-1"
           onClick={props.onSubscribeClick}
+          aria-label="Subscribe"
         >
           <BellIcon className="h-6 w-6" />
           <span className="hidden md:block">Subscribe</span>
