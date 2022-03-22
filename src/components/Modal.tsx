@@ -13,7 +13,7 @@ export const Modal: FC<ModalProps> = ({ isOpen, close, children }) => {
   return isLoaded
     ? createPortal(
         <div
-          className={`modal backdrop-blur bg-transparent ${
+          className={`modal backdrop-blur bg-transparent z-[10000] ${
             isOpen ? 'modal-open' : null
           }`}
           onClick={({ target, currentTarget }) => {
