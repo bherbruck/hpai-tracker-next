@@ -38,6 +38,10 @@ const Home: NextPage = (props) => {
           content="A map of all Highly Pathogenic Avian Influenza (HPAI) cases confirmed by USDA APHIS"
         />
         <link rel="icon" href="/favicon.svg" />
+        <meta
+          name="viewport"
+          content="width=device-width, user-scalable=no"
+        ></meta>
       </Head>
 
       <Script
