@@ -38,6 +38,7 @@ export const HpaiMap: FC<HpaiMapProps> = ({
       center={[location?.lat ?? 40, location?.lng ?? -90]}
       zoom={location?.zoom ?? 5}
       className="h-full w-full"
+      worldCopyJump={true}
     >
       <MapEvents
         dragend={setMapLocation}
