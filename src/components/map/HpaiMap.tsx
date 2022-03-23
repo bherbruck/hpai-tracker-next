@@ -4,6 +4,7 @@ import { MapEvents } from './MapEvents'
 import type { LeafletEvent } from 'leaflet'
 import { HpaiCaseGeometry } from '$lib/types'
 import { FC } from 'react'
+import { useThemeDetector } from '$hooks/useThemeDetector'
 
 export type Location = { zoom: number; lat: number; lng: number }
 
@@ -32,12 +33,14 @@ export const HpaiMap: FC<HpaiMapProps> = ({
     map.invalidateSize()
   }
 
+  const { isDarkTheme } = useThemeDetector()
+
   return (
     <MapContainer
       zoomControl={false}
       center={[location?.lat ?? 40, location?.lng ?? -90]}
       zoom={location?.zoom ?? 5}
-      className="h-full w-full"
+      className="h-full w-full bg-base-300"
       worldCopyJump={true}
     >
       <MapEvents
@@ -49,6 +52,12 @@ export const HpaiMap: FC<HpaiMapProps> = ({
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        opacity={isDarkTheme ? 0.25 : 1}
+        className={
+          isDarkTheme
+            ? `invert brightness-[0.75] contrast-[3] hue-rotate-[200deg] saturate-[0.1]`
+            : ''
+        }
       />
       {hpaiCaseGeometries?.map(({ state, county, geoJSON, cases }) => (
         <GeoJSON
@@ -61,8 +70,6 @@ export const HpaiMap: FC<HpaiMapProps> = ({
             )
           }}
         >
-          <Tooltip direction={'top'} className="rounded-lg" sticky={true}>
-            <span className="font-bold text-sm">
           <Tooltip
             direction={'top'}
             className="rounded-lg bg-base-100 border-0"
