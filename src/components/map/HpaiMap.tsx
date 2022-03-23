@@ -63,6 +63,13 @@ export const HpaiMap: FC<HpaiMapProps> = ({
         >
           <Tooltip direction={'top'} className="rounded-lg" sticky={true}>
             <span className="font-bold text-sm">
+          <Tooltip
+            direction={'top'}
+            className="rounded-lg bg-base-100 border-0"
+            opacity={1}
+            sticky={true}
+          >
+            <span className="font-bold text-sm text-base-content">
               {county} {state}
             </span>
           </Tooltip>
