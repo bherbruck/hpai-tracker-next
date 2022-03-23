@@ -76,7 +76,6 @@ export const HpaiMap: FC<HpaiMapProps> = ({
             direction={'top'}
             className="rounded-lg bg-base-100 border-0"
             opacity={1}
-            sticky={true}
           >
             <span className="font-bold text-sm text-base-content">
               {county} {state}
