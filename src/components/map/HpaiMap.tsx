@@ -63,7 +63,9 @@ export const HpaiMap: FC<HpaiMapProps> = ({
         <GeoJSON
           key={JSON.stringify({ state, county })}
           data={geoJSON}
-          style={{ color: '#f00' }}
+          style={{
+            color: `hsl(var(--er))`,
+          }}
           onEachFeature={(_, layer) => {
             layer.on('click', () =>
               onCountyClick?.({ state, county, geoJSON, cases })
