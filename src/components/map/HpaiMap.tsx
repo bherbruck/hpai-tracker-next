@@ -42,6 +42,7 @@ export const HpaiMap: FC<HpaiMapProps> = ({
       zoom={location?.zoom ?? 5}
       className="h-full w-full bg-base-300"
       worldCopyJump={true}
+      attributionControl={false}
     >
       <MapEvents
         dragend={setMapLocation}
@@ -59,6 +60,11 @@ export const HpaiMap: FC<HpaiMapProps> = ({
             : ''
         }
       />
+      <div className="absolute bottom-0 right-0 z-[1000] bg-base-100 bg-opacity-50 opacity-75 px-1">
+        &copy;{' '}
+        <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>{' '}
+        contributors
+      </div>
       {hpaiCaseGeometries?.map(({ state, county, geoJSON, cases }) => (
         <GeoJSON
           key={JSON.stringify({ state, county })}
