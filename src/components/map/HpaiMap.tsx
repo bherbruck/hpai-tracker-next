@@ -70,7 +70,7 @@ export const HpaiMap: FC<HpaiMapProps> = ({
           key={JSON.stringify({ state, county })}
           data={geoJSON}
           style={{
-            color: `hsl(var(--er))`,
+            color: `hsl(var(--er))`, // daisyui error color
           }}
           onEachFeature={(_, layer) => {
             layer.on('click', () =>
