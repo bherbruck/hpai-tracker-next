@@ -19,12 +19,14 @@ const handler: NextApiHandler = async (req, res) => {
 
   console.log('refreshed')
 
+  console.log(`sending email to ${subscribers.length} subscribers`)
+
   if (hpaiCases.length > 0 && subscribers.length > 0) {
     if (!req.headers.host)
       return res.status(500).json({ error: 'Error update email' })
 
     // TODO: find a way to figure out http or https
-    const homeUrl = `http://${new URL(req.headers.host)}`
+    const homeUrl = `http://${req.headers.host}`
 
     const newCasesCount = hpaiCases.length
 
