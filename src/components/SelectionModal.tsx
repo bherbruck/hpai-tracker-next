@@ -31,7 +31,11 @@ export const SelectionModal: FC<SelectionModalProps> = ({
           {cases.map(({ id, dateConfirmed, flockType, flockSize }) => (
             <tr key={id}>
               <td>
-                {new Date(dateConfirmed).toLocaleDateString().split(' ')[0]}
+                {
+                  new Date(dateConfirmed)
+                    .toLocaleDateString(undefined, { timeZone: 'UTC' })
+                    .split(' ')[0]
+                }
               </td>
               <td className="whitespace-pre-wrap">{flockType}</td>
               <td>{numberWithCommas(flockSize as number)}</td>
