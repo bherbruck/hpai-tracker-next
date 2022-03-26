@@ -95,7 +95,7 @@ export const StatsModal: FC<StatsModalProps> = ({
                     <td>
                       {
                         new Date(dateConfirmed)
-                          .toLocaleDateString()
+                          .toLocaleDateString(undefined, { timeZone: 'utc' })
                           .split(' ')[0]
                       }
                     </td>
