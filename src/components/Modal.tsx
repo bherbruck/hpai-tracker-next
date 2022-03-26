@@ -3,9 +3,16 @@ import { PropsWithChildren, useState, useEffect } from 'react'
 import { useModal } from '$hooks/useModal'
 import type { FC } from 'react'
 
-export type ModalProps = PropsWithChildren<ReturnType<typeof useModal>>
+export type ModalProps = ReturnType<typeof useModal> & {
+  className?: string
+}
 
-export const Modal: FC<ModalProps> = ({ isOpen, close, children }) => {
+export const Modal: FC<ModalProps> = ({
+  isOpen,
+  close,
+  className,
+  children,
+}) => {
   const [isLoaded, setLoaded] = useState(false)
 
   useEffect(() => setLoaded(true), [])
@@ -22,7 +29,9 @@ export const Modal: FC<ModalProps> = ({ isOpen, close, children }) => {
           }}
         >
           {isOpen ? (
-            <div className="modal-box relative max-w-xl">
+            <div
+              className={`modal-box ${className}`}
+            >
               <button
                 className="btn btn-sm btn-circle absolute right-2 top-2"
                 onClick={close}
