@@ -11,3 +11,10 @@ export type HpaiCaseGeometry = {
   cases: ClientSideHpaiCase[]
   geoJSON: GeoJSON
 }
+
+export type Stats = {
+  totalCases: number
+  totalDeaths: number
+  affectedStates: number
+  affectedCounties: number
+}

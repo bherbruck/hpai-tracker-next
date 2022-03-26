@@ -1,7 +1,12 @@
-import { InformationCircleIcon, BellIcon } from '@heroicons/react/outline'
+import {
+  InformationCircleIcon,
+  BellIcon,
+  ChartBarIcon,
+} from '@heroicons/react/outline'
 
 type NavbarProps = {
   title?: string
+  onStatsClick?: () => void
   onAboutClick?: () => void
   onSubscribeClick?: () => void
   onBmacClick?: () => void
@@ -17,8 +22,18 @@ export const Navbar = (props: NavbarProps) => {
       </div>
       <div className="navbar-center" />
 
-      {/* about button */}
       <div className="navbar-end flex flex-row">
+        {/* stats button */}
+        <button
+          className="btn btn-ghost gap-1"
+          onClick={props.onStatsClick}
+          aria-label="Stats"
+        >
+          <ChartBarIcon className="h-6 w-6" />
+          <span className="hidden md:block">Stats</span>
+        </button>
+
+        {/* about button */}
         <button
           className="btn btn-ghost gap-1"
           onClick={props.onAboutClick}

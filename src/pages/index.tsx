@@ -4,22 +4,28 @@ import Script from 'next/script'
 import { Navbar } from '$components/Navbar'
 import { Modal } from '$components/Modal'
 import { useModal } from '$hooks/useModal'
+import { StatsModal } from '$components/StatsModal'
 import { SubscribeModal } from '$components/SubscribeModal'
 import { SelectionModal } from '$components/SelectionModal'
 import { Map } from '$components/map/ClientSideMap'
 import useSWR from 'swr'
-import type { HpaiCaseGeometry } from '$lib/types'
+import type { HpaiCaseGeometry, Stats } from '$lib/types'
 import { useState } from 'react'
 
 const Home: NextPage = (props) => {
+  const statsModal = useModal()
   const aboutModal = useModal()
   const subscribeModal = useModal()
   const selectionModal = useModal()
 
   // maybe load this server-side?
-  const { data: hpaiCaseGeometries, error } = useSWR<HpaiCaseGeometry[]>(
+  const { data: hpaiCaseGeometries } = useSWR<HpaiCaseGeometry[]>(
     '/api/hpai-case-geometry',
     (url: string) => fetch(url).then((r) => r.json())
+  )
+
+  const { data: stats } = useSWR<Stats>('/api/stats', (url: string) =>
+    fetch(url).then((r) => r.json())
   )
 
   const [selectedHpaiCases, setSelectedHpaiCases] = useState<HpaiCaseGeometry>()
@@ -59,8 +65,15 @@ const Home: NextPage = (props) => {
       </Script>
 
       <Navbar
+        onStatsClick={() => statsModal.open()}
         onAboutClick={() => aboutModal.open()}
         onSubscribeClick={() => subscribeModal.open()}
+      />
+
+      <StatsModal
+        {...statsModal}
+        hpaiCases={hpaiCaseGeometries}
+        stats={stats}
       />
 
       <Modal {...aboutModal}>
