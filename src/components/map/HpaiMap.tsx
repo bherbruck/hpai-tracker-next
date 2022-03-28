@@ -1,21 +1,22 @@
 import { MapContainer, TileLayer, GeoJSON, Tooltip } from 'react-leaflet'
 import { useLocalStorage } from 'react-use'
 import { MapEvents } from './MapEvents'
-import type { LeafletEvent } from 'leaflet'
+import { LeafletEvent, Map, tileLayer } from 'leaflet'
 import { HpaiCaseGeometry } from '$lib/types'
-import { FC } from 'react'
-import { useThemeDetector } from '$hooks/useThemeDetector'
+import { type FC, useRef, useEffect, useState } from 'react'
 
 export type Location = { zoom: number; lat: number; lng: number }
 
 export type HpaiMapProps = {
   hpaiCaseGeometries?: HpaiCaseGeometry[]
   onCountyClick?: (hpaiCaseGeometry: HpaiCaseGeometry) => void
+  theme?: 'light' | 'dark'
 }
 
 export const HpaiMap: FC<HpaiMapProps> = ({
   hpaiCaseGeometries,
   onCountyClick,
+  theme = 'light',
 }) => {
   const [location, setLocation] = useLocalStorage<Location>('location', {
     lat: 40,
@@ -29,11 +30,21 @@ export const HpaiMap: FC<HpaiMapProps> = ({
     setLocation({ lat, lng, zoom })
   }
 
-  const invalidateSize = ({ target: map }: LeafletEvent) => {
+  const [map, setMap] = useState<Map>()
+  const [isRefreshing, setIsRefreshing] = useState(false)
+
+  // hack to force refresh on map
+  // TileLayer.className does not update reactively(?)
+  useEffect(() => {
+    setIsRefreshing(true)
+    setTimeout(() => {
+      setIsRefreshing(false)
+    }, 1)
+  }, [map, theme])
+
+  const invalidateSize = ({ target: map }: { target: Map }) => {
     map.invalidateSize()
   }
-
-  const { isDarkTheme } = useThemeDetector()
 
   return (
     <MapContainer
@@ -43,6 +54,7 @@ export const HpaiMap: FC<HpaiMapProps> = ({
       className="h-full w-full bg-base-300"
       worldCopyJump={true}
       attributionControl={false}
+      whenCreated={setMap}
     >
       <MapEvents
         dragend={setMapLocation}
@@ -50,16 +62,17 @@ export const HpaiMap: FC<HpaiMapProps> = ({
         load={invalidateSize}
         layeradd={invalidateSize}
       />
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        opacity={isDarkTheme ? 0.25 : 1}
-        className={
-          isDarkTheme
-            ? `invert brightness-[0.75] contrast-[3] hue-rotate-[200deg] saturate-[0.1]`
-            : ''
-        }
-      />
+      {!isRefreshing && (
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          opacity={theme === 'dark' ? 0.25 : 1}
+          className={
+            theme === 'dark'
+              ? `invert brightness-[0.75] contrast-[3] hue-rotate-[200deg] saturate-[0.1]`
+              : ''
+          }
+        />
+      )}
       <div className="absolute bottom-0 right-0 z-[1000] bg-base-100 bg-opacity-50 opacity-75 px-1">
         &copy;{' '}
         <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>{' '}

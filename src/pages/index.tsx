@@ -11,6 +11,7 @@ import { Map } from '$components/map/ClientSideMap'
 import useSWR from 'swr'
 import type { HpaiCaseGeometry, Stats } from '$lib/types'
 import { useState } from 'react'
+import { useTheme } from '$hooks/useTheme'
 
 const Home: NextPage = (props) => {
   const statsModal = useModal()
@@ -30,10 +31,12 @@ const Home: NextPage = (props) => {
 
   const [selectedHpaiCases, setSelectedHpaiCases] = useState<HpaiCaseGeometry>()
 
-  const handleSelection = (hpaiCases: HpaiCaseGeometry) => {
+  const handleSelection = <T extends HpaiCaseGeometry>(hpaiCases: T) => {
     setSelectedHpaiCases(hpaiCases)
     selectionModal.open()
   }
+
+  const { theme, setTheme } = useTheme()
 
   return (
     <div className="inset-0 absolute">
@@ -65,6 +68,8 @@ const Home: NextPage = (props) => {
       </Script>
 
       <Navbar
+        theme={theme ?? 'light'}
+        onToggleTheme={setTheme}
         onStatsClick={() => statsModal.open()}
         onAboutClick={() => aboutModal.open()}
         onSubscribeClick={() => subscribeModal.open()}
@@ -108,6 +113,7 @@ const Home: NextPage = (props) => {
         <Map
           hpaiCaseGeometries={hpaiCaseGeometries}
           onCountyClick={handleSelection}
+          theme={theme}
         />
       </div>
     </div>
