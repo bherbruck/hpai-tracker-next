@@ -37,6 +37,7 @@ export const Navbar: FC<NavbarProps> = (props) => {
         {/* theme button */}
         <ToggleButton
           className="btn btn-ghost gap-1 no-animation"
+          ariaLabel="Toggle theme"
           initialState={props.theme === 'light'}
           onChange={(isActive) =>
             props.onToggleTheme?.(isActive ? 'light' : 'dark')

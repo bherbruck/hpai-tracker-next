@@ -2,6 +2,7 @@ import { type FC, type ReactChild, useState } from 'react'
 
 export type ToggleButtonProps = {
   className?: string
+  ariaLabel?: string
   initialState?: boolean
   onChange?: (isActive: boolean) => void
   children: {
@@ -12,6 +13,7 @@ export type ToggleButtonProps = {
 
 const ToggleButton: FC<ToggleButtonProps> = ({
   className = '',
+  ariaLabel,
   initialState,
   onChange,
   children,
@@ -28,6 +30,7 @@ const ToggleButton: FC<ToggleButtonProps> = ({
       className={`${className} swap swap-rotate ${
         isActive ? 'swap-active' : ''
       }`}
+      aria-label={ariaLabel}
       onClick={handleClick}
     >
       <div className="swap-on">{children.on}</div>
