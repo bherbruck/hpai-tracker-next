@@ -29,9 +29,7 @@ export const Modal: FC<ModalProps> = ({
           }}
         >
           {isOpen ? (
-            <div
-              className={`modal-box ${className}`}
-            >
+            <div className={`modal-box ${className}`}>
               <button
                 className="btn btn-sm btn-circle absolute right-2 top-2"
                 onClick={close}
