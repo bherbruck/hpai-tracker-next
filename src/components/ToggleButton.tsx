@@ -11,6 +11,7 @@ export type ToggleButtonProps = {
 }
 
 const ToggleButton: FC<ToggleButtonProps> = ({
+  className = '',
   initialState,
   onChange,
   children,
@@ -23,13 +24,15 @@ const ToggleButton: FC<ToggleButtonProps> = ({
   }
 
   return (
-    <div
-      className={`swap swap-rotate ${isActive ? 'swap-active' : ''}`}
+    <button
+      className={`${className} swap swap-rotate ${
+        isActive ? 'swap-active' : ''
+      }`}
       onClick={handleClick}
     >
       <div className="swap-on">{children.on}</div>
       <div className="swap-off">{children.off}</div>
-    </div>
+    </button>
   )
 }
 

@@ -35,20 +35,19 @@ export const Navbar: FC<NavbarProps> = (props) => {
 
       <div className="navbar-end flex flex-row">
         {/* theme button */}
-        <div className="btn btn-ghost gap-1 no-animation">
-          <ToggleButton
-            initialState={props.theme === 'light'}
-            onChange={(isActive) =>
-              props.onToggleTheme?.(isActive ? 'light' : 'dark')
-            }
-          >
-            {{
-              on: <SunIcon className="h-6 w-6" />,
-              off: <MoonIcon className="h-6 w-6" />,
-            }}
-          </ToggleButton>
-          {/* TODO: put some text here and have the whole button click */}
-        </div>
+        <ToggleButton
+          className="btn btn-ghost gap-1 no-animation"
+          initialState={props.theme === 'light'}
+          onChange={(isActive) =>
+            props.onToggleTheme?.(isActive ? 'light' : 'dark')
+          }
+        >
+          {{
+            on: <SunIcon className="h-6 w-6" />,
+            off: <MoonIcon className="h-6 w-6" />,
+          }}
+          {/* TODO: put some text here */}
+        </ToggleButton>
 
         {/* stats button */}
         <button
