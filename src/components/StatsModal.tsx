@@ -72,7 +72,7 @@ export const StatsModal: FC<StatsModalProps> = ({
 
         <div className="flex-1 overflow-scroll h-full">
           <table className="table table-compact w-full">
-            <thead>
+            <thead className="sticky top-0">
               <tr>
                 <th>Confirmed</th>
                 <th>State</th>
