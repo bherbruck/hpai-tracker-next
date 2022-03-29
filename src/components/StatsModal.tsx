@@ -2,14 +2,7 @@ import { type ModalProps, Modal } from './Modal'
 import { FC, useEffect, useState } from 'react'
 import type { HpaiCaseGeometry, ClientSideHpaiCase, Stats } from '$lib/types'
 import { numberWithCommas } from '$lib/number-comma'
-import {
-  ResponsiveContainer,
-  AreaChart,
-  XAxis,
-  YAxis,
-  Area,
-  Tooltip,
-} from 'recharts'
+import { ResponsiveContainer, AreaChart, XAxis, Area, Tooltip } from 'recharts'
 
 type StatsModalProps = ModalProps & {
   hpaiCases?: HpaiCaseGeometry[]
@@ -157,26 +150,41 @@ export const StatsModal: FC<StatsModalProps> = ({
             </tbody>
           </table>
         </div>
+
         <div className="flex-1">
           {/* this should probably be its own component */}
           <ResponsiveContainer>
             <AreaChart data={cumulativeCases}>
-              <XAxis dataKey="dateConfirmed" />
-              <YAxis width={0} />
+              <defs>
+                <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop stopColor="hsl(var(--a))" />
+                  <stop
+                    offset="100%"
+                    stopColor="hsl(var(--a))"
+                    stopOpacity={0}
+                  />
+                </linearGradient>
+              </defs>
+              <XAxis
+                dataKey="dateConfirmed"
+                tick={{ fill: 'hsl(var(--bc))' }}
+                tickLine={{ stroke: 'hsl(var(--bc))', opacity: 0.75 }}
+                axisLine={{ opacity: 0 }}
+              />
               <Area
                 type="monotone"
                 dataKey="flockSize"
                 stroke="hsl(var(--a))"
-                fill="hsl(var(--a))"
-                fillOpacity={0.5}
+                fill="url(#chartGradient)"
                 strokeWidth={5}
+                strokeLinecap="round"
               />
               {/* this should probably be its own component */}
               <Tooltip
                 content={(props) =>
                   props.payload &&
                   props.payload.length > 0 && (
-                    <div className="rounded-lg bg-base-300 border-0 p-2 flex flex-col">
+                    <div className="rounded-lg bg-base-200 border-0 p-2 flex flex-col shadow">
                       <span className="font-bold text-sm text-base-content">
                         {props.payload[0].payload.dateConfirmed}
                       </span>
