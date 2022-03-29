@@ -43,7 +43,7 @@ export const StatsModal: FC<StatsModalProps> = ({
             <div className="stat-title">Birds Affected</div>
             <div className="stat-value">
               {numberWithCommas(
-                ((stats?.totalDeaths ?? 0) / 1000000).toFixed(1)
+                ((stats?.totalDeaths ?? 0) / 1_000_000).toFixed(1)
               )}
               M
             </div>
