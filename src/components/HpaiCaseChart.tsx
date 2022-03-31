@@ -2,6 +2,7 @@ import { ResponsiveContainer, AreaChart, XAxis, Area, Tooltip } from 'recharts'
 import { numberWithCommas } from '$lib/number-comma'
 import type { CumulativeHpaiCase } from '$lib/types'
 import { type FC } from 'react'
+import { formatDate } from '$lib/format-date'
 
 export type HpaiCaseChartProps = {
   cumulativeCases: CumulativeHpaiCase[]
@@ -37,7 +38,7 @@ export const HpaiCaseChart: FC<HpaiCaseChartProps> = ({ cumulativeCases }) => (
           props.payload.length > 0 && (
             <div className="rounded-lg bg-base-200 border-0 p-2 flex flex-col shadow">
               <span className="font-bold text-sm text-base-content">
-                {props.payload[0].payload.dateConfirmed}
+                {formatDate(props.payload[0].payload.dateConfirmed)}
               </span>
               <span className=" text-sm text-base-content">
                 Birds Affected:

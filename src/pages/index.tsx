@@ -47,9 +47,9 @@ const Home: NextPage = (props) => {
   )
 
   const [selectedHpaiCases, setSelectedHpaiCases] =
-    useState<HpaiCaseGeometryResponse>()
+    useState<HpaiCaseGeometry>()
 
-  const handleSelection = <T extends HpaiCaseGeometryResponse>(
+  const handleSelection = <T extends HpaiCaseGeometry>(
     hpaiCases: T
   ) => {
     setSelectedHpaiCases(hpaiCases)
