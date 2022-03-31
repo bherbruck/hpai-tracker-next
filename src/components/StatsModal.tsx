@@ -29,7 +29,7 @@ const accumulateHpaiCases = (
     )
   })
 
-  const grouped = sorted.reduce((acc, { dateConfirmed, flockSize }, index) => {
+  const grouped = sorted.reduce((acc, { dateConfirmed, flockSize }) => {
     const fmtDateConfirmed = new Date(dateConfirmed).toLocaleDateString(
       undefined,
       { timeZone: 'utc' }
