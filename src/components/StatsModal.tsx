@@ -1,5 +1,5 @@
 import { type ModalProps, Modal } from './Modal'
-import { FC, useDebugValue, useEffect, useMemo, useState } from 'react'
+import { type FC, useDebugValue, useMemo } from 'react'
 import type {
   HpaiCase,
   Stats,
@@ -9,7 +9,8 @@ import type {
 import { numberWithCommas } from '$lib/number-comma'
 import { HpaiCaseChart } from './HpaiCaseChart'
 import { HpaiCaseTable } from './HpaiCaseTable'
-import { formatDate } from '$lib/format-date'
+import { fillDates } from '$lib/fill-dates'
+import { sum } from '$lib/sum'
 
 type StatsModalProps = ModalProps & {
   hpaiCases?: HpaiCaseGeometry[]
@@ -21,19 +22,37 @@ const sort = <T extends Record<any, any>>(
   compareFn: (a: T, b: T) => number
 ): T[] => [...arr].sort((a, b) => compareFn(a, b))
 
-const accumulateHpaiCases = (hpaiCases: HpaiCase[]): CumulativeHpaiCase[] => {
-  const sorted = sort(hpaiCases, (a, b) => {
-    return (
-      new Date(a.dateConfirmed).valueOf() - new Date(b.dateConfirmed).valueOf()
-    )
-  })
+const flattenHpaiCases = (hpaiCases: HpaiCaseGeometry[]) =>
+  sort(
+    hpaiCases?.flatMap(({ cases }) => cases) ?? [],
+    (a, b) =>
+      new Date(b.dateConfirmed).valueOf() - new Date(a.dateConfirmed).valueOf()
+  )
 
-  const grouped = sorted.reduce((acc, { dateConfirmed, flockSize }) => {
-    const formattedDate = formatDate(dateConfirmed)
+const chartHpaiCases = (hpaiCases: HpaiCase[]): CumulativeHpaiCase[] => {
+  // TODO: optimize this
+
+  const sorted = sort(
+    hpaiCases,
+    (a, b) =>
+      new Date(a.dateConfirmed).valueOf() - new Date(b.dateConfirmed).valueOf()
+  )
+
+  const filledDates = fillDates(
+    sorted[0]?.dateConfirmed ?? new Date(),
+    new Date()
+  )
+
+  const grouped = filledDates.reduce((acc, date) => {
+    const hpaiCases = sorted.filter(
+      (h) => h.dateConfirmed.valueOf() === date.valueOf()
+    ) as HpaiCase[]
+    const dateValue = date.valueOf()
+    const flockSize = sum(hpaiCases.map((h) => h.flockSize ?? 0))
 
     return {
       ...acc,
-      [formattedDate]: (acc[formattedDate] ?? 0) + (flockSize ?? 0),
+      [dateValue]: (acc[dateValue] ?? 0) + flockSize,
     }
   }, {} as Record<string, number>)
 
@@ -42,9 +61,9 @@ const accumulateHpaiCases = (hpaiCases: HpaiCase[]): CumulativeHpaiCase[] => {
       return [
         ...acc,
         {
-          dateConfirmed,
+          dateConfirmed: new Date(Number(dateConfirmed)),
           flockSize:
-            flockSize + (acc.length > 0 ? acc[acc.length - 1].flockSize : 0),
+            flockSize + (acc.length > 0 ? acc.at(-1)?.flockSize ?? 0 : 0),
         },
       ]
     },
@@ -59,24 +78,11 @@ export const StatsModal: FC<StatsModalProps> = ({
   stats,
   ...props
 }) => {
-  const [flatCases, setFlatCases] = useState<HpaiCase[]>([])
-
-  useEffect(() => {
-    setFlatCases(
-      sort(hpaiCases?.flatMap(({ cases }) => cases) ?? [], (a, b) => {
-        return (
-          new Date(b.dateConfirmed).valueOf() -
-          new Date(a.dateConfirmed).valueOf()
-        )
-      })
-    )
-    return () => setFlatCases([])
-  }, [hpaiCases])
-
-  const cumulativeCases = useMemo(
-    () => accumulateHpaiCases(flatCases),
-    [flatCases]
+  const flatCases = useMemo(
+    () => flattenHpaiCases(hpaiCases ?? []),
+    [hpaiCases]
   )
+  const cumulativeCases = useMemo(() => chartHpaiCases(flatCases), [flatCases])
 
   useDebugValue(flatCases)
   useDebugValue(cumulativeCases)

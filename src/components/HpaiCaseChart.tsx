@@ -22,6 +22,7 @@ export const HpaiCaseChart: FC<HpaiCaseChartProps> = ({ cumulativeCases }) => (
         tick={{ fill: 'hsl(var(--bc))' }}
         tickLine={{ stroke: 'hsl(var(--bc))', opacity: 0.75 }}
         axisLine={{ opacity: 0 }}
+        tickFormatter={formatDate}
       />
       <Area
         type="monotone"

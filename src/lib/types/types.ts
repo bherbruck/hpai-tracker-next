@@ -28,6 +28,6 @@ export type Stats = {
 }
 
 export type CumulativeHpaiCase = {
-  dateConfirmed: string
+  dateConfirmed: Date
   flockSize: number
 }
