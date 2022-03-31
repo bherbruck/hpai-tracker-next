@@ -1,5 +1,5 @@
 import { type ModalProps, Modal } from './Modal'
-import { FC, useEffect, useState } from 'react'
+import { FC, useEffect, useMemo, useState } from 'react'
 import type {
   HpaiCaseGeometry,
   ClientSideHpaiCase,
@@ -64,9 +64,6 @@ export const StatsModal: FC<StatsModalProps> = ({
   ...props
 }) => {
   const [flatCases, setFlatCases] = useState<ClientSideHpaiCase[]>([])
-  const [cumulativeCases, setCumulativeCases] = useState<CumulativeHpaiCase[]>(
-    []
-  )
 
   useEffect(() => {
     setFlatCases(
@@ -80,10 +77,10 @@ export const StatsModal: FC<StatsModalProps> = ({
     return () => setFlatCases([])
   }, [hpaiCases])
 
-  useEffect(() => {
-    setCumulativeCases(accumulateHpaiCases(flatCases))
-    return () => setCumulativeCases([])
-  }, [flatCases])
+  const cumulativeCases = useMemo(
+    () => accumulateHpaiCases(flatCases),
+    [flatCases]
+  )
 
   return (
     // TODO: make this mobile friendly
