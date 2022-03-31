@@ -18,3 +18,8 @@ export type Stats = {
   affectedStates: number
   affectedCounties: number
 }
+
+export type CumulativeHpaiCase = {
+  dateConfirmed: string
+  flockSize: number
+}
