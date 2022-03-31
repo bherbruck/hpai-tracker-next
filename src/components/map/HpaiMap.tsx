@@ -1,9 +1,9 @@
 import { MapContainer, TileLayer, GeoJSON, Tooltip } from 'react-leaflet'
 import { useLocalStorage } from 'react-use'
 import { MapEvents } from './MapEvents'
-import { LeafletEvent, Map, tileLayer } from 'leaflet'
 import { HpaiCaseGeometry } from '$lib/types'
-import { type FC, useRef, useEffect, useState } from 'react'
+import { LeafletEvent, Map } from 'leaflet'
+import { type FC, useEffect, useState } from 'react'
 
 export type Location = { zoom: number; lat: number; lng: number }
 
