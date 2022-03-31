@@ -9,10 +9,10 @@ type StatsModalProps = ModalProps & {
   stats?: Stats
 }
 
-type CumulativeHpaiCase = Pick<
-  ClientSideHpaiCase,
-  'dateConfirmed' | 'flockSize'
->
+type CumulativeHpaiCase = {
+  dateConfirmed: string
+  flockSize: number
+}
 
 const sort = <T extends Record<any, any>>(
   arr: T[],
@@ -21,21 +21,41 @@ const sort = <T extends Record<any, any>>(
 
 const accumulateHpaiCases = (
   hpaiCases: ClientSideHpaiCase[]
-): CumulativeHpaiCase[] =>
-  hpaiCases.reduce((acc, { dateConfirmed, flockSize }, index) => {
-    if (!acc.length) return [{ dateConfirmed, flockSize }]
-    const cumulativeFlockSize =
-      (acc[index - 1]?.flockSize ?? 0) + (flockSize ?? 0)
-    return [
+): CumulativeHpaiCase[] => {
+  const sorted = sort(hpaiCases, (a, b) => {
+    return (
+      new Date(a.dateConfirmed).valueOf() - new Date(b.dateConfirmed).valueOf()
+    )
+  })
+
+  const grouped = sorted.reduce((acc, { dateConfirmed, flockSize }, index) => {
+    const fmtDateConfirmed = new Date(dateConfirmed).toLocaleDateString(
+      undefined,
+      { timeZone: 'utc' }
+    )
+
+    return {
       ...acc,
-      {
-        dateConfirmed: new Date(dateConfirmed).toLocaleDateString(undefined, {
-          timeZone: 'utc',
-        }),
-        flockSize: cumulativeFlockSize,
-      },
-    ]
-  }, [] as CumulativeHpaiCase[])
+      [fmtDateConfirmed]: (acc[fmtDateConfirmed] ?? 0) + (flockSize ?? 0),
+    }
+  }, {} as Record<string, number>)
+
+  const arr = Object.entries(grouped).reduce(
+    (acc, [dateConfirmed, flockSize]) => {
+      return [
+        ...acc,
+        {
+          dateConfirmed,
+          flockSize:
+            flockSize + (acc.length > 0 ? acc[acc.length - 1].flockSize : 0),
+        },
+      ]
+    },
+    [] as CumulativeHpaiCase[]
+  )
+
+  return arr
+}
 
 export const StatsModal: FC<StatsModalProps> = ({
   hpaiCases,
@@ -60,16 +80,7 @@ export const StatsModal: FC<StatsModalProps> = ({
   }, [hpaiCases])
 
   useEffect(() => {
-    setCumulativeCases(
-      accumulateHpaiCases(
-        sort(flatCases, (a, b) => {
-          return (
-            new Date(a.dateConfirmed).valueOf() -
-            new Date(b.dateConfirmed).valueOf()
-          )
-        })
-      )
-    )
+    setCumulativeCases(accumulateHpaiCases(flatCases))
     return () => setCumulativeCases([])
   }, [flatCases])
 
