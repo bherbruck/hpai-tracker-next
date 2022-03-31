@@ -1,7 +1,6 @@
 import { createPortal } from 'react-dom'
-import { useState, useEffect } from 'react'
+import { type FC, useState, useEffect } from 'react'
 import { useModal } from '$hooks/useModal'
-import type { FC } from 'react'
 
 export type ModalProps = ReturnType<typeof useModal> & {
   className?: string
