@@ -8,7 +8,7 @@ export type HpaiCaseTableProps = {
 
 export const HpaiCaseTable: FC<HpaiCaseTableProps> = ({ hpaiCases }) => (
   <table className="table table-compact w-full h-full">
-    <thead className="sticky top-0">
+    <thead className="sticky top-0 z-[12]">
       <tr>
         <th>Confirmed</th>
         <th>State</th>
