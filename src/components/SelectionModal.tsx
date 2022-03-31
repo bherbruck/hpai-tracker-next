@@ -1,11 +1,11 @@
 import { type ModalProps, Modal } from './Modal'
 import { FC } from 'react'
-import type { HpaiCaseGeometryResponse } from '$lib/types'
+import type { HpaiCaseGeometry } from '$lib/types'
 import { numberWithCommas } from '$lib/number-comma'
 import { formatDate } from '$lib/format-date'
 
 type SelectionModalProps = ModalProps & {
-  hpaiCases?: HpaiCaseGeometryResponse
+  hpaiCases?: HpaiCaseGeometry
 }
 
 export const SelectionModal: FC<SelectionModalProps> = ({
