@@ -1,9 +1,10 @@
+import { formatDate } from '$lib/format-date'
 import { numberWithCommas } from '$lib/number-comma'
-import type { ClientSideHpaiCase } from '$lib/types'
+import type { HpaiCase } from '$lib/types'
 import { type FC } from 'react'
 
 export type HpaiCaseTableProps = {
-  hpaiCases: ClientSideHpaiCase[]
+  hpaiCases: HpaiCase[]
 }
 
 export const HpaiCaseTable: FC<HpaiCaseTableProps> = ({ hpaiCases }) => (
@@ -21,13 +22,7 @@ export const HpaiCaseTable: FC<HpaiCaseTableProps> = ({ hpaiCases }) => (
       {hpaiCases.map(
         ({ id, dateConfirmed, state, county, flockType, flockSize }) => (
           <tr key={id}>
-            <th>
-              {
-                new Date(dateConfirmed)
-                  .toLocaleDateString(undefined, { timeZone: 'utc' })
-                  .split(' ')[0]
-              }
-            </th>
+            <th>{formatDate(dateConfirmed)}</th>
             <td>{state}</td>
             <td>{county}</td>
             <td>{flockType}</td>

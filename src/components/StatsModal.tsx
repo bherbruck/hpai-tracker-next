@@ -1,14 +1,15 @@
 import { type ModalProps, Modal } from './Modal'
-import { FC, useEffect, useMemo, useState } from 'react'
+import { FC, useDebugValue, useEffect, useMemo, useState } from 'react'
 import type {
-  HpaiCaseGeometry,
-  ClientSideHpaiCase,
+  HpaiCase,
   Stats,
   CumulativeHpaiCase,
+  HpaiCaseGeometry,
 } from '$lib/types'
 import { numberWithCommas } from '$lib/number-comma'
 import { HpaiCaseChart } from './HpaiCaseChart'
 import { HpaiCaseTable } from './HpaiCaseTable'
+import { formatDate } from '$lib/format-date'
 
 type StatsModalProps = ModalProps & {
   hpaiCases?: HpaiCaseGeometry[]
@@ -20,9 +21,7 @@ const sort = <T extends Record<any, any>>(
   compareFn: (a: T, b: T) => number
 ): T[] => [...arr].sort((a, b) => compareFn(a, b))
 
-const accumulateHpaiCases = (
-  hpaiCases: ClientSideHpaiCase[]
-): CumulativeHpaiCase[] => {
+const accumulateHpaiCases = (hpaiCases: HpaiCase[]): CumulativeHpaiCase[] => {
   const sorted = sort(hpaiCases, (a, b) => {
     return (
       new Date(a.dateConfirmed).valueOf() - new Date(b.dateConfirmed).valueOf()
@@ -30,14 +29,11 @@ const accumulateHpaiCases = (
   })
 
   const grouped = sorted.reduce((acc, { dateConfirmed, flockSize }) => {
-    const fmtDateConfirmed = new Date(dateConfirmed).toLocaleDateString(
-      undefined,
-      { timeZone: 'utc' }
-    )
+    const formattedDate = formatDate(dateConfirmed)
 
     return {
       ...acc,
-      [fmtDateConfirmed]: (acc[fmtDateConfirmed] ?? 0) + (flockSize ?? 0),
+      [formattedDate]: (acc[formattedDate] ?? 0) + (flockSize ?? 0),
     }
   }, {} as Record<string, number>)
 
@@ -63,7 +59,7 @@ export const StatsModal: FC<StatsModalProps> = ({
   stats,
   ...props
 }) => {
-  const [flatCases, setFlatCases] = useState<ClientSideHpaiCase[]>([])
+  const [flatCases, setFlatCases] = useState<HpaiCase[]>([])
 
   useEffect(() => {
     setFlatCases(
@@ -81,6 +77,9 @@ export const StatsModal: FC<StatsModalProps> = ({
     () => accumulateHpaiCases(flatCases),
     [flatCases]
   )
+
+  useDebugValue(flatCases)
+  useDebugValue(cumulativeCases)
 
   return (
     // TODO: make this mobile friendly

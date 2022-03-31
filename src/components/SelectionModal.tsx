@@ -1,10 +1,11 @@
 import { type ModalProps, Modal } from './Modal'
 import { FC } from 'react'
-import type { HpaiCaseGeometry } from '$lib/types'
+import type { HpaiCaseGeometryResponse } from '$lib/types'
 import { numberWithCommas } from '$lib/number-comma'
+import { formatDate } from '$lib/format-date'
 
 type SelectionModalProps = ModalProps & {
-  hpaiCases?: HpaiCaseGeometry
+  hpaiCases?: HpaiCaseGeometryResponse
 }
 
 export const SelectionModal: FC<SelectionModalProps> = ({
@@ -30,13 +31,7 @@ export const SelectionModal: FC<SelectionModalProps> = ({
         <tbody>
           {cases.map(({ id, dateConfirmed, flockType, flockSize }) => (
             <tr key={id}>
-              <td>
-                {
-                  new Date(dateConfirmed)
-                    .toLocaleDateString(undefined, { timeZone: 'UTC' })
-                    .split(' ')[0]
-                }
-              </td>
+              <td>{formatDate(dateConfirmed)}</td>
               <td className="whitespace-pre-wrap">{flockType}</td>
               <td>{numberWithCommas(flockSize as number)}</td>
             </tr>

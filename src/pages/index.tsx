@@ -9,8 +9,12 @@ import { SubscribeModal } from '$components/SubscribeModal'
 import { SelectionModal } from '$components/SelectionModal'
 import { Map } from '$components/map/ClientSideMap'
 import useSWR from 'swr'
-import type { HpaiCaseGeometry, Stats } from '$lib/types'
-import { useState } from 'react'
+import type {
+  HpaiCaseGeometry,
+  HpaiCaseGeometryResponse,
+  Stats,
+} from '$lib/types'
+import { useDebugValue, useState } from 'react'
 import { useTheme } from '$hooks/useTheme'
 
 const Home: NextPage = (props) => {
@@ -22,16 +26,32 @@ const Home: NextPage = (props) => {
   // maybe load this server-side?
   const { data: hpaiCaseGeometries } = useSWR<HpaiCaseGeometry[]>(
     '/api/hpai-case-geometry',
-    (url: string) => fetch(url).then((r) => r.json())
+    async (url: string) => {
+      const json = (await (
+        await fetch(url)
+      ).json()) as HpaiCaseGeometryResponse[]
+      return json.map((geometry) => ({
+        ...geometry,
+        cases: geometry.cases.map((hpaiCase) => ({
+          ...hpaiCase,
+          dateConfirmed: new Date(hpaiCase.dateConfirmed),
+        })),
+      }))
+    }
   )
+
+  useDebugValue(hpaiCaseGeometries)
 
   const { data: stats } = useSWR<Stats>('/api/stats', (url: string) =>
     fetch(url).then((r) => r.json())
   )
 
-  const [selectedHpaiCases, setSelectedHpaiCases] = useState<HpaiCaseGeometry>()
+  const [selectedHpaiCases, setSelectedHpaiCases] =
+    useState<HpaiCaseGeometryResponse>()
 
-  const handleSelection = <T extends HpaiCaseGeometry>(hpaiCases: T) => {
+  const handleSelection = <T extends HpaiCaseGeometryResponse>(
+    hpaiCases: T
+  ) => {
     setSelectedHpaiCases(hpaiCases)
     selectionModal.open()
   }
