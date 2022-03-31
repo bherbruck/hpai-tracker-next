@@ -1,5 +1,5 @@
 import { createPortal } from 'react-dom'
-import { PropsWithChildren, useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useModal } from '$hooks/useModal'
 import type { FC } from 'react'
 
