@@ -133,13 +133,13 @@ export const StatsModal: FC<StatsModalProps> = ({
                   flockSize,
                 }) => (
                   <tr key={id}>
-                    <td>
+                    <th>
                       {
                         new Date(dateConfirmed)
                           .toLocaleDateString(undefined, { timeZone: 'utc' })
                           .split(' ')[0]
                       }
-                    </td>
+                    </th>
                     <td>{state}</td>
                     <td>{county}</td>
                     <td>{flockType}</td>
