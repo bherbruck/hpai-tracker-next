@@ -9,11 +9,7 @@ import { SubscribeModal } from '$components/SubscribeModal'
 import { SelectionModal } from '$components/SelectionModal'
 import { Map } from '$components/map/ClientSideMap'
 import useSWR from 'swr'
-import type {
-  HpaiCaseGeometry,
-  HpaiCaseGeometryResponse,
-  Stats,
-} from '$lib/types'
+import type { HpaiCaseGeometry, HpaiCaseGeometryResponse } from '$lib/types'
 import { useDebugValue, useState } from 'react'
 import { useTheme } from '$hooks/useTheme'
 
@@ -42,16 +38,9 @@ const Home: NextPage = (props) => {
 
   useDebugValue(hpaiCaseGeometries)
 
-  const { data: stats } = useSWR<Stats>('/api/stats', (url: string) =>
-    fetch(url).then((r) => r.json())
-  )
+  const [selectedHpaiCases, setSelectedHpaiCases] = useState<HpaiCaseGeometry>()
 
-  const [selectedHpaiCases, setSelectedHpaiCases] =
-    useState<HpaiCaseGeometry>()
-
-  const handleSelection = <T extends HpaiCaseGeometry>(
-    hpaiCases: T
-  ) => {
+  const handleSelection = <T extends HpaiCaseGeometry>(hpaiCases: T) => {
     setSelectedHpaiCases(hpaiCases)
     selectionModal.open()
   }
@@ -95,11 +84,7 @@ const Home: NextPage = (props) => {
         onSubscribeClick={() => subscribeModal.open()}
       />
 
-      <StatsModal
-        {...statsModal}
-        hpaiCases={hpaiCaseGeometries}
-        stats={stats}
-      />
+      <StatsModal {...statsModal} hpaiCases={hpaiCaseGeometries} />
 
       <Modal {...aboutModal}>
         <h3 className="font-bold text-lg pb-4">About</h3>

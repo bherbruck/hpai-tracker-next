@@ -14,7 +14,6 @@ import { sum } from '$lib/sum'
 
 type StatsModalProps = ModalProps & {
   hpaiCases?: HpaiCaseGeometry[]
-  stats?: Stats
 }
 
 const sort = <T extends Record<any, any>>(
@@ -73,15 +72,51 @@ const chartHpaiCases = (hpaiCases: HpaiCase[]): CumulativeHpaiCase[] => {
   return arr
 }
 
+const summarizeHpaiCases = (hpaiCases: HpaiCase[]): Stats => {
+  const temp = hpaiCases.reduce(
+    ({ stats, seenStates, seenCounties }, { state, county, flockSize }) => {
+      const isStateSeen = seenStates.includes(state)
+      const isCountySeen = seenCounties.includes(county)
+      return {
+        stats: {
+          totalCases: stats.totalCases + 1,
+          totalDeaths: stats.totalDeaths + (flockSize ?? 0),
+          affectedStates: isStateSeen
+            ? stats.affectedStates
+            : stats.affectedStates + 1,
+          affectedCounties: isCountySeen
+            ? stats.affectedCounties
+            : stats.affectedCounties + 1,
+        },
+        seenCounties: isStateSeen ? seenCounties : [...seenCounties, county],
+        seenStates: isStateSeen ? seenStates : [...seenStates, state],
+      }
+    },
+    {
+      stats: {
+        totalCases: 0,
+        totalDeaths: 0,
+        affectedStates: 0,
+        affectedCounties: 0,
+      },
+      seenStates: [],
+      seenCounties: [],
+    } as { stats: Stats; seenStates: string[]; seenCounties: string[] }
+  )
+
+  return temp.stats
+}
+
 export const StatsModal: FC<StatsModalProps> = ({
   hpaiCases,
-  stats,
+  // stats,
   ...props
 }) => {
   const flatCases = useMemo(
     () => flattenHpaiCases(hpaiCases ?? []),
     [hpaiCases]
   )
+  const stats = useMemo(() => summarizeHpaiCases(flatCases), [flatCases])
   const cumulativeCases = useMemo(() => chartHpaiCases(flatCases), [flatCases])
 
   useDebugValue(flatCases)
