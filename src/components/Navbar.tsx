@@ -36,7 +36,7 @@ export const Navbar: FC<NavbarProps> = (props) => {
       <div className="navbar-end flex flex-row">
         {/* theme button */}
         <ToggleButton
-          className="btn btn-ghost gap-1 no-animation"
+          className="btn btn-ghost gap-1 no-animation px-2 md:px-4"
           ariaLabel="Toggle theme"
           initialState={props.theme === 'light'}
           onChange={(isActive) =>
@@ -52,7 +52,7 @@ export const Navbar: FC<NavbarProps> = (props) => {
 
         {/* stats button */}
         <button
-          className="btn btn-ghost gap-1"
+          className="btn btn-ghost gap-1 px-2 md:px-4"
           onClick={props.onStatsClick}
           aria-label="Stats"
         >
@@ -62,7 +62,7 @@ export const Navbar: FC<NavbarProps> = (props) => {
 
         {/* about button */}
         <button
-          className="btn btn-ghost gap-1"
+          className="btn btn-ghost gap-1 px-2 md:px-4"
           onClick={props.onAboutClick}
           aria-label="About"
         >
@@ -72,7 +72,7 @@ export const Navbar: FC<NavbarProps> = (props) => {
 
         {/* subscribe button */}
         <button
-          className="btn btn-ghost gap-1"
+          className="btn btn-ghost gap-1 px-2 md:px-4"
           onClick={props.onSubscribeClick}
           aria-label="Subscribe"
         >
