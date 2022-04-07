@@ -62,7 +62,8 @@ const chartHpaiCases = (hpaiCases: HpaiCase[]): CumulativeHpaiCase[] => {
         {
           dateConfirmed: new Date(Number(dateConfirmed)),
           flockSize:
-            flockSize + (acc.length > 0 ? acc.at(-1)?.flockSize ?? 0 : 0),
+            flockSize +
+            (acc.length > 0 ? acc[acc.length - 1]?.flockSize ?? 0 : 0),
         },
       ]
     },
