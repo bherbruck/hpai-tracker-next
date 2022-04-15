@@ -10,10 +10,41 @@ import { SelectionModal } from '$components/SelectionModal'
 import { Map } from '$components/map/ClientSideMap'
 import useSWR from 'swr'
 import type { HpaiCaseGeometry, HpaiCaseGeometryResponse } from '$lib/types'
-import { useDebugValue, useState } from 'react'
+import { useDebugValue, useMemo, useState } from 'react'
 import { useTheme } from '$hooks/useTheme'
+import { FilterBar } from '$components/FilterBar'
 
-const Home: NextPage = (props) => {
+type Filters = {
+  Commercial: boolean
+  Backyard: boolean
+  Layer: boolean
+  Turkey: boolean
+  Broiler: boolean
+}
+
+const filterHpaiCases = (
+  hpaiCases: HpaiCaseGeometry[],
+  filters: string[]
+): HpaiCaseGeometry[] => {
+  if (filters.length === 0) return hpaiCases
+  const filteredGeometries = hpaiCases.reduce((acc, cur) => {
+    const filteredCases = {
+      ...cur,
+      cases: cur.cases.filter((hpaiCase) =>
+        filters.some((filter) => hpaiCase.flockType.includes(filter))
+      ),
+    } as HpaiCaseGeometry
+
+    return [
+      ...acc,
+      filteredCases.cases.length > 0 ? filteredCases : undefined,
+    ].filter((value) => value) as HpaiCaseGeometry[]
+  }, [] as HpaiCaseGeometry[])
+
+  return filteredGeometries
+}
+
+const Home: NextPage = () => {
   const statsModal = useModal()
   const aboutModal = useModal()
   const subscribeModal = useModal()
@@ -36,7 +67,24 @@ const Home: NextPage = (props) => {
     }
   )
 
-  useDebugValue(hpaiCaseGeometries)
+  const [filters, setFilters] = useState<Filters>({
+    Commercial: false,
+    Backyard: false,
+    Layer: false,
+    Turkey: false,
+    Broiler: false,
+  })
+
+  const filteredHpaiCaseGeometries = useMemo(
+    () =>
+      filterHpaiCases(
+        hpaiCaseGeometries ?? [],
+        Object.entries(filters)
+          .filter(([, isActive]) => isActive)
+          .map(([key]) => key)
+      ),
+    [filters, hpaiCaseGeometries]
+  )
 
   const [selectedHpaiCases, setSelectedHpaiCases] = useState<HpaiCaseGeometry>()
 
@@ -46,6 +94,11 @@ const Home: NextPage = (props) => {
   }
 
   const { theme, setTheme } = useTheme()
+
+  useDebugValue(hpaiCaseGeometries)
+  useDebugValue(filteredHpaiCaseGeometries)
+  useDebugValue(selectedHpaiCases)
+  useDebugValue(theme)
 
   return (
     <div className="inset-0 absolute">
@@ -76,6 +129,17 @@ const Home: NextPage = (props) => {
         `}
       </Script>
 
+      <FilterBar
+        className="absolute bottom-0 p-4 flex-wrap-reverse z-[999999]"
+        booleanFilters={Object.keys(filters).reduce((acc, cur) => {
+          return {
+            ...acc,
+            [cur]: (isActive: boolean) =>
+              setFilters({ ...filters, [cur]: isActive }),
+          }
+        }, {})}
+      />
+
       <Navbar
         theme={theme ?? 'light'}
         onToggleTheme={setTheme}
@@ -84,7 +148,7 @@ const Home: NextPage = (props) => {
         onSubscribeClick={() => subscribeModal.open()}
       />
 
-      <StatsModal {...statsModal} hpaiCases={hpaiCaseGeometries} />
+      <StatsModal {...statsModal} hpaiCases={filteredHpaiCaseGeometries} />
 
       <Modal {...aboutModal}>
         <h3 className="font-bold text-lg pb-4">About</h3>
@@ -116,7 +180,7 @@ const Home: NextPage = (props) => {
 
       <div className="h-full w-full">
         <Map
-          hpaiCaseGeometries={hpaiCaseGeometries}
+          hpaiCaseGeometries={filteredHpaiCaseGeometries}
           onCountyClick={handleSelection}
           theme={theme}
         />
