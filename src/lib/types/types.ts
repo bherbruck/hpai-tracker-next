@@ -3,8 +3,12 @@ import type { GeoJSON } from 'geojson'
 
 export type HpaiCase = PrimaHpaiCase
 
-export type ClientSideHpaiCase = Omit<HpaiCase, 'dateConfirmed'> & {
+export type ClientSideHpaiCase = Omit<
+  HpaiCase,
+  'dateConfirmed' | 'dateReleased'
+> & {
   dateConfirmed: string
+  dateReleased?: string
 }
 
 export type HpaiCaseInput = Omit<HpaiCase, 'id'>

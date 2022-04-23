@@ -2,20 +2,27 @@ import { parse } from 'papaparse'
 import { HpaiCaseInput } from '$lib/types'
 
 type InputCsv = {
+  Confirmed: string
   State: string
-  County: string
-  'Date Confirmed': string
-  'Flock Type': string
-  'Flock Size': string
+  'County Name': string
+  'Special Id': string
+  'Production': string
+  Released: string
+  "Measure Names": string
+  "Birds Affected": string
 }
+
 export function parseRawData(data: InputCsv): HpaiCaseInput {
-  const flockSize = Number(data['Flock Size'].toString().split(',').join(''))
+  const flockSize = Number(data['Birds Affected'].toString().split(',').join(''))
+  const dateReleased = data['Released'] === 'Active' ? null : new Date(data['Released'])
   return {
-    dateConfirmed: new Date(data['Date Confirmed']),
+    dateConfirmed: new Date(data['Confirmed']),
     state: data.State,
-    county: data.County.split(' County')[0].trim(),
-    flockType: data['Flock Type'],
+    county: data['County Name'],
+    flockType: data['Production'],
     flockSize: isNaN(flockSize) ? null : flockSize,
+    dateReleased: dateReleased,
+    name: data['Special Id'],
     pressReleaseUrl: null,
   }
 }

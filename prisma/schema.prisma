@@ -11,8 +11,10 @@ datasource db {
 }
 
 model HpaiCase {
-  id              String   @id @default(cuid())
+  id              String    @id @default(cuid())
+  name            String    @unique
   dateConfirmed   DateTime
+  dateReleased    DateTime?
   state           String
   county          String
   flockType       String
