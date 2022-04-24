@@ -3,27 +3,39 @@ import { sendEmail } from '$lib/email'
 import { prisma } from '$lib/prisma'
 import type { NextApiHandler } from 'next'
 
+type UpdatePayload = {
+  url: string
+  shouldNotify?: boolean | string
+}
+
 const handler: NextApiHandler = async (req, res) => {
-  if (!process.env.API_SECRET_KEY || !process.env.NEXT_PUBLIC_HPAI_CSV_URL)
-    return res.status(501).json({ error: 'Email not implemented' })
+  if (!process.env.API_SECRET_KEY)
+    return res.status(501).json({ error: 'Update not implemented' })
   const { authorization } = req.headers
   if (!authorization) return res.status(401).json({ error: 'Unauthorized' })
   const [, apiKey] = authorization.split(' ')
   if (apiKey !== process.env.API_SECRET_KEY)
     return res.status(401).json({ error: 'Unauthorized' })
 
+  const { url, shouldNotify } = req.body as UpdatePayload
+  if (!url) return res.status(400).json({ error: 'Missing url' })
+
   console.log('refreshing...')
 
-  const hpaiCases = await scrapeHpaiCases(process.env.NEXT_PUBLIC_HPAI_CSV_URL)
+  const hpaiCases = await scrapeHpaiCases(url)
   const subscribers = await prisma.user.findMany({ where: { active: true } })
 
   console.log('refreshed')
 
-  console.log(`sending email to ${subscribers.length} subscribers`)
-
-  if (hpaiCases.length > 0 && subscribers.length > 0) {
+  if (
+    String(shouldNotify) === 'true' &&
+    hpaiCases.length > 0 &&
+    subscribers.length > 0
+  ) {
     if (!req.headers.host)
-      return res.status(500).json({ error: 'Error update email' })
+      return res.status(500).json({ error: 'Could not determine hostname' })
+
+    console.log(`sending email to ${subscribers.length} subscribers`)
 
     // TODO: find a way to figure out http or https
     const homeUrl = `http://${req.headers.host}`

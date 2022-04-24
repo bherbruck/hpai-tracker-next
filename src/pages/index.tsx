@@ -44,7 +44,7 @@ const filterHpaiCases = (
   return filteredGeometries
 }
 
-const Home: NextPage = () => {
+const Home: NextPage = (props) => {
   const statsModal = useModal()
   const aboutModal = useModal()
   const subscribeModal = useModal()
@@ -62,6 +62,9 @@ const Home: NextPage = () => {
         cases: geometry.cases.map((hpaiCase) => ({
           ...hpaiCase,
           dateConfirmed: new Date(hpaiCase.dateConfirmed),
+          dateReleased: hpaiCase.dateReleased
+            ? new Date(hpaiCase.dateReleased)
+            : null,
         })),
       }))
     }
@@ -156,12 +159,6 @@ const Home: NextPage = () => {
           HPAI Tracker is a free tool to map the locations of HPAI cases in the
           United States by county. Click on a county to see the cases in the
           selected county.
-        </p>
-        <p>
-          Data is provided by{' '}
-          <a className="link" href={process.env.NEXT_PUBLIC_HPAI_CSV_URL}>
-            USDA APHIS
-          </a>
         </p>
         <p>
           Source code is available at{' '}

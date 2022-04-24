@@ -10,8 +10,19 @@ jobs:
   cron:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - uses: microsoft/playwright-github-action@v1
+
+      - name: Scrape HPAI cases from Tableau
+        id: scraper
+        run: |
+          npm i
+          echo "::set-output name=url::$(npx ts-node ./scripts/playwright.ts)"
+
       - name: Call the /api/update endpoint
         run: |
-          curl --request GET \
+          curl -X POST \ 
           --url '${{ secrets.UPDATE_ENDPOINT }}' \
-          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
+          -h 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}' \
+          -d '{ url: ${{ steps.scraper.outputs.url }}, shouldNotify: ${{ secrets.SHOULD_NOTIFY }} }'

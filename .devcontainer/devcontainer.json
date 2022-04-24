@@ -20,8 +20,7 @@
     "Prisma.prisma",
     "WillLuke.nextjs",
     "bradlc.vscode-tailwindcss",
-    "rangav.vscode-thunder-client",
-    "cschleiden.vscode-github-actions"
+    "rangav.vscode-thunder-client"
   ],
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   // This can be used to network with other containers or with the host.
@@ -29,5 +28,8 @@
   // Use 'postCreateCommand' to run commands after the container is created.
   // "postCreateCommand": "yarn install",
   // Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
-  "remoteUser": "node"
+  "remoteUser": "node",
+  "features": {
+    "desktop-lite": "latest"
+  }
 }
