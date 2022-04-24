@@ -22,7 +22,12 @@ jobs:
 
       - name: Call the /api/update endpoint
         run: |
-          curl -X POST \ 
-          --url '${{ secrets.UPDATE_ENDPOINT }}' \
-          -h 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}' \
-          -d '{ url: ${{ steps.scraper.outputs.url }}, shouldNotify: ${{ secrets.SHOULD_NOTIFY }} }'
+          curl \
+            --request POST \
+            --url '${{ secrets.UPDATE_ENDPOINT }}' \
+            --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}' \
+            --header 'Content-Type: application/json' \
+            --data-raw '{ "url": "${{ steps.scraper.outputs.url }}", "shouldNotify": ${{ secrets.SHOULD_NOTIFY }} }'
+
+
+
