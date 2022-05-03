@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && prisma migrate deploy && prisma db seed && next build",
+    "migrate": "prisma generate && prisma migrate deploy && prisma db seed",
     "start": "next start",
     "lint": "next lint",
     "format": "prettier --ignore-path .gitignore --write --plugin-search-dir=. ."
