@@ -12,6 +12,8 @@ datasource db {
 
 model HpaiCase {
   id              String    @id @default(cuid())
+  dateCreated     DateTime? @default(now())
+  dateUpdated     DateTime? @default(now()) @updatedAt
   name            String    @unique
   dateConfirmed   DateTime
   dateReleased    DateTime?

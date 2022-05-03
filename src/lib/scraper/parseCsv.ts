@@ -6,15 +6,18 @@ type InputCsv = {
   State: string
   'County Name': string
   'Special Id': string
-  'Production': string
+  Production: string
   Released: string
-  "Measure Names": string
-  "Birds Affected": string
+  'Measure Names': string
+  'Birds Affected': string
 }
 
 export function parseRawData(data: InputCsv): HpaiCaseInput {
-  const flockSize = Number(data['Birds Affected'].toString().split(',').join(''))
-  const dateReleased = data['Released'] === 'Active' ? null : new Date(data['Released'])
+  const flockSize = Number(
+    data['Birds Affected'].toString().split(',').join('')
+  )
+  const dateReleased =
+    data['Released'] === 'Active' ? null : new Date(data['Released'])
   return {
     dateConfirmed: new Date(data['Confirmed']),
     state: data.State,
@@ -22,7 +25,7 @@ export function parseRawData(data: InputCsv): HpaiCaseInput {
     flockType: data['Production'],
     flockSize: isNaN(flockSize) ? null : flockSize,
     dateReleased: dateReleased,
-    name: data['Special Id'],
+    name: `${data['State']} ${data['Special Id']}`,
     pressReleaseUrl: null,
   }
 }

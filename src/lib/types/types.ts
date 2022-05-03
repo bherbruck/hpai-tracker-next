@@ -5,13 +5,15 @@ export type HpaiCase = PrimaHpaiCase
 
 export type ClientSideHpaiCase = Omit<
   HpaiCase,
-  'dateConfirmed' | 'dateReleased'
+  'dateConfirmed' | 'dateReleased' | 'dateCreated' | 'dateUpdated'
 > & {
   dateConfirmed: string
   dateReleased?: string
+  dateCreated?: string
+  dateUpdated?: string
 }
 
-export type HpaiCaseInput = Omit<HpaiCase, 'id'>
+export type HpaiCaseInput = Omit<HpaiCase, 'id' | 'dateCreated' | 'dateUpdated'>
 
 export type HpaiCaseGeometry = {
   state: string

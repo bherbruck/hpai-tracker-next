@@ -65,6 +65,12 @@ const Home: NextPage = (props) => {
           dateReleased: hpaiCase.dateReleased
             ? new Date(hpaiCase.dateReleased)
             : null,
+          dateCreated: hpaiCase.dateCreated
+            ? new Date(hpaiCase.dateCreated)
+            : null,
+          dateUpdated: hpaiCase.dateUpdated
+            ? new Date(hpaiCase.dateUpdated)
+            : null,
         })),
       }))
     }
