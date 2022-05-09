@@ -16,17 +16,27 @@ export const HpaiCaseTable: FC<HpaiCaseTableProps> = ({ hpaiCases }) => (
         <th>County</th>
         <th>Flock Type</th>
         <th>Flock Size</th>
+        <th>Released</th>
       </tr>
     </thead>
     <tbody>
       {hpaiCases.map(
-        ({ id, dateConfirmed, state, county, flockType, flockSize }) => (
+        ({
+          id,
+          dateConfirmed,
+          state,
+          county,
+          flockType,
+          flockSize,
+          dateReleased,
+        }) => (
           <tr key={id}>
             <th>{formatDate(dateConfirmed)}</th>
             <td>{state}</td>
             <td>{county}</td>
             <td>{flockType}</td>
             <td>{numberWithCommas(flockSize as number)}</td>
+            <td>{dateReleased && formatDate(dateReleased)}</td>
           </tr>
         )
       )}
