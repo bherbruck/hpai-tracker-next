@@ -2,7 +2,7 @@ import { MapContainer, TileLayer, GeoJSON, Tooltip } from 'react-leaflet'
 import { useLocalStorage } from 'react-use'
 import { MapEvents } from './MapEvents'
 import { LeafletEvent, Map } from 'leaflet'
-import { HpaiCaseGeometry } from '$lib/types'
+import { HpaiCase, HpaiCaseGeometry } from '$lib/types'
 import { type FC, useEffect, useState } from 'react'
 
 export type Location = { zoom: number; lat: number; lng: number }
@@ -12,6 +12,9 @@ export type HpaiMapProps = {
   onCountyClick?: (hpaiCaseGeometry: HpaiCaseGeometry) => void
   theme?: 'light' | 'dark'
 }
+
+const areAllCasesReleased = (hpaiCases: HpaiCase[]) =>
+  hpaiCases.every((caseData) => caseData.dateReleased)
 
 export const HpaiMap: FC<HpaiMapProps> = ({
   hpaiCaseGeometries,
@@ -83,7 +86,9 @@ export const HpaiMap: FC<HpaiMapProps> = ({
           key={JSON.stringify({ state, county })}
           data={geoJSON}
           style={{
-            color: `hsl(var(--er))`, // daisyui error color
+            color: areAllCasesReleased(cases)
+              ? `hsl(var(--a))` // daisyui accent color
+              : `hsl(var(--er))`, // daisyui error color
           }}
           onEachFeature={(_, layer) => {
             layer.on('click', () =>
