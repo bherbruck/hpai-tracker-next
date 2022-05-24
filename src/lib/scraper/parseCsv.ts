@@ -7,7 +7,7 @@ type InputCsv = {
   'County Name': string
   'Special Id': string
   Production: string
-  Released: string
+  'Control Area Released': string
   'Measure Names': string
   'Birds Affected': string
 }
@@ -17,7 +17,9 @@ export function parseRawData(data: InputCsv): HpaiCaseInput {
     data['Birds Affected'].toString().split(',').join('')
   )
   const dateReleased =
-    data['Released'] === 'Active' ? null : new Date(data['Released'])
+    data['Control Area Released'] === 'Active'
+      ? null
+      : new Date(data['Control Area Released'])
   return {
     dateConfirmed: new Date(data['Confirmed']),
     state: data.State,
