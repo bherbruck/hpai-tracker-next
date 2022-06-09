@@ -4,6 +4,7 @@ import { MapEvents } from './MapEvents'
 import { LeafletEvent, Map } from 'leaflet'
 import { HpaiCase, HpaiCaseGeometry } from '$lib/types'
 import { type FC, useEffect, useState } from 'react'
+import { dateDiff } from '$lib/date'
 
 export type Location = { zoom: number; lat: number; lng: number }
 
@@ -15,6 +16,17 @@ export type HpaiMapProps = {
 
 const areAllCasesReleased = (hpaiCases: HpaiCase[]) =>
   hpaiCases.every((caseData) => caseData.dateReleased)
+
+const hasNewCases = (hpaiCases: HpaiCase[]) =>
+  hpaiCases.some((caseData) => dateDiff(caseData.dateConfirmed, new Date()) <= 7)
+
+const computeCountyColor = (hpaiCases: HpaiCase[]) => {
+  return hasNewCases(hpaiCases)
+    ? 'hsl(var(--wa))'
+    : areAllCasesReleased(hpaiCases)
+    ? 'hsl(var(--a))'
+    : 'hsl(var(--er))'
+}
 
 export const HpaiMap: FC<HpaiMapProps> = ({
   hpaiCaseGeometries,
@@ -86,9 +98,7 @@ export const HpaiMap: FC<HpaiMapProps> = ({
           key={JSON.stringify({ state, county })}
           data={geoJSON}
           style={{
-            color: areAllCasesReleased(cases)
-              ? `hsl(var(--a))` // daisyui accent color
-              : `hsl(var(--er))`, // daisyui error color
+            color: computeCountyColor(cases),
           }}
           onEachFeature={(_, layer) => {
             layer.on('click', () =>
