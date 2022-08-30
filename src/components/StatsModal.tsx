@@ -77,7 +77,8 @@ const summarizeHpaiCases = (hpaiCases: HpaiCase[]): Stats => {
   const temp = hpaiCases.reduce(
     ({ stats, seenStates, seenCounties }, { state, county, flockSize }) => {
       const isStateSeen = seenStates.includes(state)
-      const isCountySeen = seenCounties.includes(county)
+      const stateCounty = `${state}-${county}`
+      const isCountySeen = isStateSeen && seenCounties.includes(stateCounty)
       return {
         stats: {
           totalCases: stats.totalCases + 1,
@@ -89,8 +90,8 @@ const summarizeHpaiCases = (hpaiCases: HpaiCase[]): Stats => {
             ? stats.affectedCounties
             : stats.affectedCounties + 1,
         },
-        seenCounties: isStateSeen ? seenCounties : [...seenCounties, county],
         seenStates: isStateSeen ? seenStates : [...seenStates, state],
+        seenCounties: isCountySeen ? seenCounties : [...seenCounties, stateCounty],
       }
     },
     {
