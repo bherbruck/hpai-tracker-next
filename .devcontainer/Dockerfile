@@ -16,4 +16,4 @@ FROM mcr.microsoft.com/vscode/devcontainers/javascript-node:0-${VARIANT}
 # [Optional] Uncomment if you want to install more global node modules
 # RUN su node -c "npm install -g hotel"
 
-# RUN su node -c "npx playwright install chromium"
+# RUN su node -c "npx playwright install-deps && npx playwright install chromium"
