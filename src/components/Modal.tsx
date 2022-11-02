@@ -4,7 +4,7 @@ import { useModal } from '$hooks/useModal'
 
 export type ModalProps = ReturnType<typeof useModal> & {
   className?: string
-  children: ReactNode
+  children?: ReactNode
 }
 
 export const Modal: FC<ModalProps> = ({

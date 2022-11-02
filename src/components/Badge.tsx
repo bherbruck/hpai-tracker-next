@@ -3,7 +3,7 @@ import { type FC, type ReactNode, useState } from 'react'
 export type BadgeProps = {
   className?: string
   onChange?: (isActive: boolean) => void
-  children: ReactNode
+  children?: ReactNode
 }
 
 export const Badge: FC<BadgeProps> = ({ children, className, onChange }) => {

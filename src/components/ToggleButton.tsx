@@ -1,4 +1,4 @@
-import { type FC, type ReactChild, useState } from 'react'
+import { type FC, type ReactNode, useState } from 'react'
 
 export type ToggleButtonProps = {
   className?: string
@@ -6,8 +6,8 @@ export type ToggleButtonProps = {
   initialState?: boolean
   onChange?: (isActive: boolean) => void
   children: {
-    on: ReactChild
-    off: ReactChild
+    on: ReactNode
+    off: ReactNode
   }
 }
 
