@@ -91,7 +91,9 @@ const summarizeHpaiCases = (hpaiCases: HpaiCase[]): Stats => {
             : stats.affectedCounties + 1,
         },
         seenStates: isStateSeen ? seenStates : [...seenStates, state],
-        seenCounties: isCountySeen ? seenCounties : [...seenCounties, stateCounty],
+        seenCounties: isCountySeen
+          ? seenCounties
+          : [...seenCounties, stateCounty],
       }
     },
     {

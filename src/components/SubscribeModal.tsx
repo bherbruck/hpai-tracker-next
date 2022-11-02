@@ -1,5 +1,5 @@
 import { useLocalStorage } from 'react-use'
-import { MailIcon } from '@heroicons/react/outline'
+import { EnvelopeIcon } from '@heroicons/react/24/outline'
 import { type ModalProps, Modal } from './Modal'
 import type { User } from '@prisma/client'
 import { useState } from 'react'
@@ -64,7 +64,7 @@ export const SubscribeModal = (props: ModalProps) => {
       <div className="form-control">
         <div className="input-group">
           <span>
-            <MailIcon className="h-6 w-6" />
+            <EnvelopeIcon className="h-6 w-6" />
           </span>
           <input
             type="email"

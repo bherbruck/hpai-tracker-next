@@ -28,6 +28,3 @@ jobs:
             --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}' \
             --header 'Content-Type: application/json' \
             --data-raw '{ "url": "${{ steps.scraper.outputs.url }}", "shouldNotify": ${{ secrets.SHOULD_NOTIFY }} }'
-
-
-

@@ -18,7 +18,9 @@ const areAllCasesReleased = (hpaiCases: HpaiCase[]) =>
   hpaiCases.every((caseData) => caseData.dateReleased)
 
 const hasNewCases = (hpaiCases: HpaiCase[]) =>
-  hpaiCases.some((caseData) => dateDiff(caseData.dateConfirmed, new Date()) <= 7)
+  hpaiCases.some(
+    (caseData) => dateDiff(caseData.dateConfirmed, new Date()) <= 7
+  )
 
 const computeCountyColor = (hpaiCases: HpaiCase[]) => {
   return hasNewCases(hpaiCases)
@@ -45,7 +47,6 @@ export const HpaiMap: FC<HpaiMapProps> = ({
     setLocation({ lat, lng, zoom })
   }
 
-  const [map, setMap] = useState<Map>()
   const [isRefreshing, setIsRefreshing] = useState(false)
 
   // hack to force refresh on map
@@ -55,7 +56,7 @@ export const HpaiMap: FC<HpaiMapProps> = ({
     setTimeout(() => {
       setIsRefreshing(false)
     }, 1)
-  }, [map, theme])
+  }, [theme])
 
   const invalidateSize = ({ target: map }: { target: Map }) => {
     map.invalidateSize()
@@ -69,7 +70,6 @@ export const HpaiMap: FC<HpaiMapProps> = ({
       className="h-full w-full bg-base-300"
       worldCopyJump={true}
       attributionControl={false}
-      whenCreated={setMap}
     >
       <MapEvents
         dragend={setMapLocation}

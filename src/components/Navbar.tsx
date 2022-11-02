@@ -4,7 +4,7 @@ import {
   ChartBarIcon,
   SunIcon,
   MoonIcon,
-} from '@heroicons/react/outline'
+} from '@heroicons/react/24/outline'
 import { type FC } from 'react'
 import type { Theme } from '$hooks/useTheme'
 import dynamic from 'next/dynamic'
