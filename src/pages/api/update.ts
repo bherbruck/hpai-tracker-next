@@ -22,14 +22,14 @@ const handler: NextApiHandler = async (req, res) => {
 
   console.log('refreshing...')
 
-  const hpaiCases = await scrapeHpaiCases(url)
+  const { newHpaiCases, deletedHpaiCaseNames } = await scrapeHpaiCases(url)
   const subscribers = await prisma.user.findMany({ where: { active: true } })
 
   console.log('refreshed')
 
   if (
     String(shouldNotify) === 'true' &&
-    hpaiCases.length > 0 &&
+    newHpaiCases.length > 0 &&
     subscribers.length > 0
   ) {
     if (!req.headers.host)
@@ -40,7 +40,7 @@ const handler: NextApiHandler = async (req, res) => {
     // TODO: find a way to figure out http or https
     const homeUrl = `http://${req.headers.host}`
 
-    const newCasesCount = hpaiCases.length
+    const newCasesCount = newHpaiCases.length
 
     const subject = `${newCasesCount} new HPAI case${
       newCasesCount > 1 ? 's' : ''
@@ -69,7 +69,8 @@ const handler: NextApiHandler = async (req, res) => {
 
   return res.json({
     message: 'refreshed',
-    newCases: hpaiCases,
+    newCases: newHpaiCases,
+    deletedCases: deletedHpaiCaseNames,
   })
 }
 
