@@ -52,7 +52,7 @@ const Home: NextPage = (props) => {
   const selectionModal = useModal()
 
   // maybe load this server-side?
-  const { data: hpaiCaseGeometries, isValidating } = useSWR<HpaiCaseGeometry[]>(
+  const { data: hpaiCaseGeometries } = useSWR<HpaiCaseGeometry[]>(
     '/api/hpai-case-geometry',
     async (url: string) => {
       const json = (await (
@@ -183,7 +183,7 @@ const Home: NextPage = (props) => {
       <SelectionModal {...selectionModal} hpaiCases={selectedHpaiCases} />
 
       <div className="h-full w-full">
-        {isValidating && <Loading />}
+        {!hpaiCaseGeometries && <Loading />}
         <Map
           hpaiCaseGeometries={filteredHpaiCaseGeometries}
           onCountyClick={handleSelection}
