@@ -13,6 +13,7 @@ import type { HpaiCaseGeometry, HpaiCaseGeometryResponse } from '$lib/types'
 import { useDebugValue, useMemo, useState } from 'react'
 import { useTheme } from '$hooks/useTheme'
 import { FilterBar } from '$components/FilterBar'
+import { Loading } from '$components/Loading'
 
 type Filters = {
   Commercial: boolean
@@ -51,7 +52,7 @@ const Home: NextPage = (props) => {
   const selectionModal = useModal()
 
   // maybe load this server-side?
-  const { data: hpaiCaseGeometries } = useSWR<HpaiCaseGeometry[]>(
+  const { data: hpaiCaseGeometries, isValidating } = useSWR<HpaiCaseGeometry[]>(
     '/api/hpai-case-geometry',
     async (url: string) => {
       const json = (await (
@@ -182,6 +183,7 @@ const Home: NextPage = (props) => {
       <SelectionModal {...selectionModal} hpaiCases={selectedHpaiCases} />
 
       <div className="h-full w-full">
+        {isValidating && <Loading />}
         <Map
           hpaiCaseGeometries={filteredHpaiCaseGeometries}
           onCountyClick={handleSelection}
