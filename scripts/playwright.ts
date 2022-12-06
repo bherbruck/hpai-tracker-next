@@ -7,32 +7,47 @@ const main = async () => {
   const context = await browser.newContext()
   const page = await context.newPage()
 
-  // TODO: find out how to pass this url in as an action secret
   await page.goto(
-    'https://publicdashboards.dl.usda.gov/t/MRP_PUB/views/VS_Avian_HPAIConfirmedDetections2022/HPAI2022ConfirmedDetections'
+    'https://www.aphis.usda.gov/aphis/ourfocus/animalhealth/animal-disease-information/avian/avian-influenza/hpai-2022/2022-hpai-commercial-backyard-flocks'
   )
 
+  // scroll down to the map
+  await page.mouse.wheel(0, 100_000)
+
+  // wait for the map to load
   await page
+    .frameLocator('iframe')
     .locator(
-      '#tabZoneId101 .tab-zone-margin .tab-zone-padding .tab-tiledViewer .tab-clip .tab-tvTLSpacer img'
+      '#tabZoneId101 > .tab-zone-margin > .tab-zone-padding > .tab-tiledViewer > .tab-clip > .tab-tvTLSpacer > img'
     )
     .click()
 
-  await page.locator('[aria-label="Download"]').click()
+  // wait for the download button to load
+  await page
+    .frameLocator('iframe')
+    .getByRole('toolbar', { name: 'Visualization controls' })
+    .getByRole('button', { name: 'Download' })
+    .click()
 
+  // wait for the data popup page to load
   const [dataPage] = await Promise.all([
     page.waitForEvent('popup'),
-    page.locator('div[role="dialog"] >> text=Data').click(),
+    page
+      .frameLocator('iframe')
+      .getByRole('menuitem', { name: 'Data' })
+      .getByText('Data')
+      .click(),
   ])
 
-  const link = await dataPage
-    .locator('.csvLink_summary')
-    .first()
-    .getAttribute('href')
+  // wait for the download to start
+  const [download] = await Promise.all([
+    page.waitForEvent('download'),
+    dataPage.getByRole('button', { name: 'Download' }).click(),
+  ])
 
-  console.log(link)
+  console.log(download.url())
 
-  await dataPage.close()
+  // ---------------------
   await context.close()
   await browser.close()
 }
