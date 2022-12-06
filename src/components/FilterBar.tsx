@@ -11,7 +11,7 @@ export const FilterBar: FC<FilterBarProps> = ({
   booleanFilters,
 }) => {
   return (
-    <div className={`flex flex-row flex-wrap gap-1 max-w-full ${className}`}>
+    <div className={`flex flex-row flex-wrap gap-1 max-w-1/2 ${className}`}>
       {Object.entries(booleanFilters).map(([label, onChange]) => (
         <Badge key={label} onChange={onChange}>
           {label}
