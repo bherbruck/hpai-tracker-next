@@ -3,8 +3,8 @@ name: update-hpai-cases
 on:
   workflow_dispatch:
   schedule:
-    # every 10 minutes
-    - cron: '*/10 * * * *'
+    # every hour
+    - cron: '0 * * * *'
 
 jobs:
   cron:
