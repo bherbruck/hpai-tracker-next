@@ -14,6 +14,7 @@ import { useDebugValue, useMemo, useState } from 'react'
 import { useTheme } from '$hooks/useTheme'
 import { FilterBar } from '$components/FilterBar'
 import { Loading } from '$components/Loading'
+import { BMAC } from '$components/BMAC'
 
 type Filters = {
   Commercial: boolean
@@ -190,6 +191,7 @@ const Home: NextPage = (props) => {
           theme={theme}
         />
       </div>
+      <BMAC />
     </div>
   )
 }
