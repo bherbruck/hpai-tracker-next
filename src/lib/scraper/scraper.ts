@@ -7,20 +7,23 @@ export async function scrapeHpaiCases(url: string) {
 
   const hpaiCases = await fetchHpaiCases(url)
 
-  const newHpaiCases = await hpaiCases.reduce(async (newHpaiCases, hpaiCase) => {
-    const existingHpaiCase = await prisma.hpaiCase.findUnique({
-      where: { name: hpaiCase.name },
-    })
-    const newHpaiCase = await prisma.hpaiCase.upsert({
-      where: { name: hpaiCase.name },
-      create: hpaiCase,
-      update: hpaiCase,
-    })
+  const newHpaiCases = await hpaiCases.reduce(
+    async (newHpaiCases, hpaiCase) => {
+      const existingHpaiCase = await prisma.hpaiCase.findUnique({
+        where: { name: hpaiCase.name },
+      })
+      const newHpaiCase = await prisma.hpaiCase.upsert({
+        where: { name: hpaiCase.name },
+        create: hpaiCase,
+        update: hpaiCase,
+      })
 
-    return existingHpaiCase
-      ? await newHpaiCases
-      : [...(await newHpaiCases), newHpaiCase]
-  }, Promise.resolve([] as HpaiCase[]))
+      return existingHpaiCase
+        ? await newHpaiCases
+        : [...(await newHpaiCases), newHpaiCase]
+    },
+    Promise.resolve([] as HpaiCase[])
+  )
 
   // delete existing hpai cases that are no longer in the list
   const existingHpaiCases = await prisma.hpaiCase.findMany()
@@ -29,9 +32,9 @@ export async function scrapeHpaiCases(url: string) {
   const deletedHpaiCaseNames = existingHpaiCaseNames.filter(
     (name) => !newHpaiCaseNames.includes(name)
   )
-  await prisma.hpaiCase.deleteMany({
-    where: { name: { in: deletedHpaiCaseNames } },
-  })
+  // await prisma.hpaiCase.deleteMany({
+  //   where: { name: { in: deletedHpaiCaseNames } },
+  // })
 
   return { newHpaiCases, deletedHpaiCaseNames }
 }
