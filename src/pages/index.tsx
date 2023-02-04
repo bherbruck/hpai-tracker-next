@@ -18,7 +18,7 @@ import { BMAC } from '$components/BMAC'
 
 type Filters = {
   Commercial: boolean
-  Backyard: boolean
+  WOAH: boolean
   Layer: boolean
   Turkey: boolean
   Broiler: boolean
@@ -80,7 +80,7 @@ const Home: NextPage = (props) => {
 
   const [filters, setFilters] = useState<Filters>({
     Commercial: false,
-    Backyard: false,
+    WOAH: false,
     Layer: false,
     Turkey: false,
     Broiler: false,
