@@ -1,3 +1,5 @@
+import Script from "next/script"
+
 export const BMAC = () => (
   <script
     data-name="BMC-Widget"
@@ -10,5 +12,6 @@ export const BMAC = () => (
     data-position="Right"
     data-x_margin="18"
     data-y_margin="18"
+    defer
   ></script>
 )
