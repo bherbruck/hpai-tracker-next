@@ -7,7 +7,7 @@ import { useModal } from '$hooks/useModal'
 import { StatsModal } from '$components/StatsModal'
 import { SubscribeModal } from '$components/SubscribeModal'
 import { SelectionModal } from '$components/SelectionModal'
-import { Map } from '$components/map/ClientSideMap'
+import { ClientSideMap } from '$components/map/ClientSideMap'
 import useSWR from 'swr'
 import type { HpaiCaseGeometry, HpaiCaseGeometryResponse } from '$lib/types'
 import { useDebugValue, useMemo, useState } from 'react'
@@ -120,10 +120,7 @@ const Home: NextPage = (props) => {
           content="A map of all Highly Pathogenic Avian Influenza (HPAI) cases confirmed by USDA APHIS"
         />
         <link rel="icon" href="/favicon.svg" />
-        <meta
-          name="viewport"
-          content="width=device-width, user-scalable=no"
-        ></meta>
+        <meta name="viewport" content="width=device-width, user-scalable=no" />
       </Head>
 
       <Script
@@ -185,7 +182,7 @@ const Home: NextPage = (props) => {
 
       <div className="h-full w-full">
         {!hpaiCaseGeometries && <Loading />}
-        <Map
+        <ClientSideMap
           hpaiCaseGeometries={filteredHpaiCaseGeometries}
           onCountyClick={handleSelection}
           theme={theme}

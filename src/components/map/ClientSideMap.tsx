@@ -1,3 +1,3 @@
 import dynamic from 'next/dynamic'
 
-export const Map = dynamic(() => import('./HpaiMap'), { ssr: false })
+export const ClientSideMap = dynamic(() => import('./HpaiMap'), { ssr: false })
