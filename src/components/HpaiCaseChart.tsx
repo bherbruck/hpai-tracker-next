@@ -31,6 +31,7 @@ export const HpaiCaseChart: FC<HpaiCaseChartProps> = ({ cumulativeCases }) => (
         fill="url(#chartGradient)"
         strokeWidth={5}
         strokeLinecap="round"
+        isAnimationActive={false}
       />
       {/* this should probably be its own component */}
       <Tooltip
