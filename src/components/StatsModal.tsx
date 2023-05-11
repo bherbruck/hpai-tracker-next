@@ -16,10 +16,8 @@ type StatsModalProps = ModalProps & {
   hpaiCases?: HpaiCaseGeometry[]
 }
 
-const sort = <T extends Record<any, any>>(
-  arr: T[],
-  compareFn: (a: T, b: T) => number
-): T[] => [...arr].sort((a, b) => compareFn(a, b))
+const sort = <T extends {}>(arr: T[], compareFn: (a: T, b: T) => number): T[] =>
+  [...arr].sort((a, b) => compareFn(a, b))
 
 const flattenHpaiCases = (hpaiCases: HpaiCaseGeometry[]) =>
   sort(
