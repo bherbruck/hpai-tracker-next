@@ -23,10 +23,10 @@ export const Modal: FC<ModalProps> = ({
           className={`modal backdrop-blur bg-transparent z-[10000] ${
             isOpen ? 'modal-open' : null
           }`}
-          onClick={({ target, currentTarget }) => {
-            if (target !== currentTarget) return
-            close()
-          }}
+          onClick={({ target, currentTarget }) =>
+            target === currentTarget && close()
+          }
+          onKeyDown={({ key }) => key === 'Escape' && close()}
         >
           {isOpen ? (
             <div className={`modal-box ${className}`}>
