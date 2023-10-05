@@ -41,7 +41,7 @@
     "nodemailer": "^6.9.1",
     "papaparse": "^5.4.1",
     "playwright": "^1.33.0",
-    "postcss": "^8.4.23",
+    "postcss": "^8.4.31",
     "prettier": "^2.8.8",
     "prisma": "^4.14.0",
     "react-leaflet": "^4.2.1",
