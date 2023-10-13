@@ -1,20 +1,8 @@
-import { parse } from 'papaparse'
-import { HpaiCaseInput } from '$lib/types'
+import { HpaiCaseInput, TableauExportData } from '$lib/types'
 
-type InputCsv = {
-  Confirmed: string
-  State: string
-  'County Name': string
-  'Special Id': string
-  Production: string
-  'Control Area Released': string
-  'Measure Names': string
-  'Birds Affected': string
-}
-
-export function parseRawData(data: InputCsv): HpaiCaseInput {
+export function parseDashboardData(data: TableauExportData): HpaiCaseInput {
   const flockSize = Number(
-    data['Birds Affected'].toString().split(',').join('')
+    data['AGG(Birds Affected)'].toString().split(',').join(''),
   )
 
   // if Control Area Released is 'NA', then dateReleased is dateConfirmed
@@ -37,13 +25,4 @@ export function parseRawData(data: InputCsv): HpaiCaseInput {
     name: `${data['State']} ${data['Special Id']}`,
     pressReleaseUrl: null,
   }
-}
-
-export function parseCsv(csvText: string): HpaiCaseInput[] {
-  const rawData = parse<InputCsv>(csvText.trim(), {
-    quoteChar: `"`,
-    header: true,
-  }).data
-  const processedData = rawData.map(parseRawData)
-  return processedData
 }

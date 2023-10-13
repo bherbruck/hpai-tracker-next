@@ -1,11 +1,17 @@
 import { prisma } from '$lib/prisma'
-import { fetchHpaiCases } from './fetch-hpai-cases'
-import type { HpaiCase } from '$lib/types'
+import { scrapeTableauData } from './scrape-tableau-data'
+import type { HpaiCase, TableauExportData } from '$lib/types'
+import { parseDashboardData } from './parse-dashboard-data'
 
-export async function scrapeHpaiCases(url: string) {
+export async function scrapeHpaiCases(baseUrl: string, dashboardRoute: string) {
   console.log(`fetching hpai cases...`)
 
-  const hpaiCases = await fetchHpaiCases(url)
+  const rawHpaiCases = await scrapeTableauData<TableauExportData[]>(
+    baseUrl,
+    dashboardRoute,
+  )
+
+  const hpaiCases = rawHpaiCases.map(parseDashboardData).flat()
 
   const newHpaiCases = await hpaiCases.reduce(
     async (newHpaiCases, hpaiCase) => {
@@ -22,7 +28,7 @@ export async function scrapeHpaiCases(url: string) {
         ? await newHpaiCases
         : [...(await newHpaiCases), newHpaiCase]
     },
-    Promise.resolve([] as HpaiCase[])
+    Promise.resolve([] as HpaiCase[]),
   )
 
   // delete existing hpai cases that are no longer in the list
@@ -30,7 +36,7 @@ export async function scrapeHpaiCases(url: string) {
   const existingHpaiCaseNames = existingHpaiCases.map((c) => c.name)
   const newHpaiCaseNames = hpaiCases.map((c) => c.name)
   const deletedHpaiCaseNames = existingHpaiCaseNames.filter(
-    (name) => !newHpaiCaseNames.includes(name)
+    (name) => !newHpaiCaseNames.includes(name),
   )
   // await prisma.hpaiCase.deleteMany({
   //   where: { name: { in: deletedHpaiCaseNames } },

@@ -3,10 +3,15 @@ import { validate as isValidEmail } from 'email-validator'
 import { sendEmail } from '$lib/email'
 import { prisma } from '$lib/prisma'
 import { User } from '@prisma/client'
+import { Resend } from 'resend'
+import { SubscribeEmail } from '$components/email/subscribe-email'
 
 export type UserResponse = { user: Omit<User, 'id'> } | { error: string }
 
 const handler: NextApiHandler<UserResponse> = async (req, res) => {
+  const resendApiKey = process.env.RESEND_API_KEY
+  if (!resendApiKey) return { error: 'Email not implemented' }
+
   const { email } =
     typeof req.body === 'string' ? JSON.parse(req.body) : req.body.email
   if (!isValidEmail(email))
@@ -26,31 +31,17 @@ const handler: NextApiHandler<UserResponse> = async (req, res) => {
 
     const confirmationUrl = `http://${req.headers.host}/confirm/${user.id}`
 
-    const { error } = await sendEmail({
-      to: user.email,
-      subject: 'Confirm your HPAI Tracker subscription',
-      html: `
-      <p>
-        Hi ${user.email},
-      </p>
-      <p>
-        Thank you for subscribing to HPAI Tracker.
-      </p>
-      <p>
-        Please confirm your subscription by clicking the link below.
-      </p>
-      <p>
-        <a href="${confirmationUrl}">
-          Confirm subscription
-        </a>
-      </p>
-      <p>
-        If you did not request this, please ignore this email.
-      </p>
-    `,
-    })
+    const resend = new Resend(resendApiKey)
 
-    if (error) {
+    try {
+      // @ts-ignore
+      await resend.emails.send({
+        from: 'HPAI Tracker <no-reply@hpai-tracker.com>',
+        to: user.email,
+        subject: 'Confirm your HPAI Tracker subscription',
+        react: SubscribeEmail({ confirmationUrl }),
+      })
+    } catch (error) {
       console.error(error)
       return res.status(500).json({ error: 'Error sending confirmation email' })
     }
