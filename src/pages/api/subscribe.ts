@@ -1,6 +1,5 @@
 import type { NextApiHandler } from 'next'
 import { validate as isValidEmail } from 'email-validator'
-import { sendEmail } from '$lib/email'
 import { prisma } from '$lib/prisma'
 import { User } from '@prisma/client'
 import { Resend } from 'resend'
