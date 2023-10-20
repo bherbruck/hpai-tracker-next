@@ -4,8 +4,10 @@ import { prisma } from '$lib/prisma'
 import type { NextApiHandler } from 'next'
 import { AlertEmail } from '$components/email/alert-email'
 
-const TABLEAU_BASE_URL = 'https://publicdashboards.dl.usda.gov'
+const TABLEAU_BASE_URL =
+  process.env.TABLEAU_BASE_URL ?? 'https://publicdashboards.dl.usda.gov'
 const TABLEAU_DASHBOARD_ROUTE =
+  process.env.TABLEAU_DASHBOARD_ROUTE ??
   '/t/MRP_PUB/views/VS_Avian_HPAIConfirmedDetections2022/HPAI2022ConfirmedDetections'
 
 const KEYS = [process.env.API_SECRET_KEY, process.env.CRON_SECRET].filter(
