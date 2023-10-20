@@ -9,9 +9,9 @@ const Confirm: NextPage = (props) => {
   const router = useRouter()
   const { id } = router.query
 
-  const { data, error } = useSWR<{ user: User }>(
+  const { data, error, isLoading } = useSWR<{ user: User }>(
     `/api/confirm?id=${id}`,
-    (url: string) => fetch(url).then((r) => r.json())
+    (url: string) => fetch(url).then((r) => r.json()),
   )
 
   return (
@@ -22,7 +22,9 @@ const Confirm: NextPage = (props) => {
       <div className="hero min-h-screen bg-base-200">
         <div className="hero-content text-center">
           <div className="max-w-md">
-            {data?.user ? (
+            {isLoading ? (
+              <span className="loading loading-spinner loading-lg" />
+            ) : data?.user ? (
               <>
                 <h1 className="text-5xl font-bold">Confirmed!</h1>
                 <p className="py-6">
@@ -34,7 +36,7 @@ const Confirm: NextPage = (props) => {
             ) : (
               <>
                 <h1 className="text-5xl font-bold">Whoops!</h1>
-                <p className="py-6">Something isn&apos;t right here.</p>
+                <p className="py-6">Something went wrong</p>
               </>
             )}
           </div>

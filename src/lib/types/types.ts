@@ -37,3 +37,14 @@ export type CumulativeHpaiCase = {
   dateConfirmed: Date
   flockSize: number
 }
+
+export type TableauExportData = {
+  Confirmed: string
+  State: string
+  'County Name': string
+  'Special Id': string
+  Production: string
+  'Control Area Released': string
+  'Measure Names': string
+  'AGG(Birds Affected)': string
+}
