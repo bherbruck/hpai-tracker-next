@@ -16,19 +16,15 @@ const KEYS = [process.env.API_SECRET_KEY, process.env.CRON_SECRET].filter(
 
 const handler: NextApiHandler = async (req, res) => {
   const { authorization } = req.headers
-  console.log({ authorization })
   if (!authorization) return res.status(401).json({ error: 'Unauthorized' })
 
   const [, apiKey] = authorization.split(' ')
-  console.log({ apiKey })
   if (!KEYS.includes(apiKey))
     return res.status(401).json({ error: 'Unauthorized' })
 
   const { notify } = req.query
 
   const shouldNotify = notify === 'true'
-
-  console.log({ shouldNotify })
 
   const resendApiKey = process.env.RESEND_API_KEY
   if (!resendApiKey && shouldNotify) return { error: 'Email not implemented' }
