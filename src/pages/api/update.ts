@@ -4,27 +4,29 @@ import { prisma } from '$lib/prisma'
 import type { NextApiHandler } from 'next'
 import { AlertEmail } from '$components/email/alert-email'
 
-type UpdatePayload = {
-  url: string
-  shouldNotify?: boolean | string
-}
-
 const TABLEAU_BASE_URL = 'https://publicdashboards.dl.usda.gov'
 const TABLEAU_DASHBOARD_ROUTE =
   '/t/MRP_PUB/views/VS_Avian_HPAIConfirmedDetections2022/HPAI2022ConfirmedDetections'
 
-const handler: NextApiHandler = async (req, res) => {
-  if (!process.env.API_SECRET_KEY)
-    return res.status(501).json({ error: 'Update not implemented' })
+const KEYS = [process.env.API_SECRET_KEY, process.env.CRON_SECRET].filter(
+  (key) => key != undefined,
+) as string[]
 
+const handler: NextApiHandler = async (req, res) => {
   const { authorization } = req.headers
+  console.log({ authorization })
   if (!authorization) return res.status(401).json({ error: 'Unauthorized' })
 
   const [, apiKey] = authorization.split(' ')
-  if (apiKey !== process.env.API_SECRET_KEY)
+  console.log({ apiKey })
+  if (!KEYS.includes(apiKey))
     return res.status(401).json({ error: 'Unauthorized' })
 
-  const { shouldNotify } = req.body as UpdatePayload
+  const { notify } = req.query
+
+  const shouldNotify = notify === 'true'
+
+  console.log({ shouldNotify })
 
   const resendApiKey = process.env.RESEND_API_KEY
   if (!resendApiKey && shouldNotify) return { error: 'Email not implemented' }
@@ -67,7 +69,7 @@ const handler: NextApiHandler = async (req, res) => {
     const resend = new Resend(resendApiKey)
     try {
       // @ts-ignore
-      await resend.emails.send({
+      const r = await resend.emails.send({
         from: 'HPAI Tracker <no-reply@hpai-tracker.com>',
         to: ['no-reply@hpai-tracker.com'],
         bcc: subscriberEmails,
@@ -77,6 +79,8 @@ const handler: NextApiHandler = async (req, res) => {
           hpaiCases: newHpaiCases,
         }),
       })
+
+      console.log(`email sent: ${r.id}`)
     } catch (error) {
       console.error(error)
       return res.status(500).json({ error: 'Could not send email' })
