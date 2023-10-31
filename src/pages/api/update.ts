@@ -18,7 +18,7 @@ const KEYS = [process.env.API_SECRET_KEY, process.env.CRON_SECRET].filter(
 
 const handler: NextApiHandler = async (req, res) => {
   const { authorization } = req.headers
-  if (!authorization) return res.status(401).json({ error: 'Unauthorized' })
+  if (!authorization) return res.status(403).json({ error: 'Forbidden' })
 
   const [, apiKey] = authorization.split(' ')
   if (!KEYS.includes(apiKey))
