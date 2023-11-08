@@ -26,7 +26,6 @@ const PrivacyPolicy: NextPage = (props) => (
         >
           Privacy Policy Generator
         </a>
-        .
       </p>
       <h1>Interpretation and Definitions</h1>
       <h2>Interpretation</h2>
