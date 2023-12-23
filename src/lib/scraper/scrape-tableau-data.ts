@@ -84,6 +84,11 @@ export const scrapeTableauData = async <T>(
       dataDialogViewRoute,
       createFormData({
         dataProviderType: 'selection',
+        visualIdPresModel: JSON.stringify({
+          // TODO: make this configurable
+          worksheet: 'A Table by Confirmation Date',
+          dashboard: 'HPAI 2022 Confirmed Detections',
+        }),
       }),
     )
   ).data as VqlQueryResponse
