@@ -39,83 +39,73 @@ const assembleData = (model: ViewDataTablePagePresModel) => {
   return data
 }
 
-export const scrapeTableauData = async <T>(
-  baseUrl: string,
-  dashboardRoute: string,
-): Promise<T> => {
+const baseUrl =
+  'https://publicdashboards.dl.usda.gov/vizql/t/MRP_PUB/w/VS_Avian_HPAIConfirmedDetections2022/v/HPAI2022ConfirmedDetections'
+
+const sessionStartPath = (sessionId: string = '0') =>
+  `/startSession/sessions/${sessionId}/viewing`
+const bootstrapSessionPath = (sessionId: string) =>
+  `/bootstrapSession/sessions/${sessionId}`
+const lanchDataViewPath = (sessionId: string) =>
+  `/sessions/${sessionId}/commands/tabdoc/launch-hybrid-view-data-dialog`
+const dataTablePath = (sessionId: string) =>
+  `/sessions/${sessionId}/commands/tabdoc/get-view-data-dialog-tab-pres-model`
+const exportToServerPath = (sessionId: string) =>
+  `/sessions/${sessionId}/commands/tabsrv/export-view-data-summary-to-csv-server`
+const exportFilePath = (sessionId: string) => `/tempfile/sessions/${sessionId}`
+
+export const scrapeTableauData = async <T>(baseUrl: string): Promise<T> => {
   const client = axios.create({
     baseURL: baseUrl,
-    withCredentials: true,
   })
 
-  const dashboardRes = await client.get(dashboardRoute, {
+  const sessionStartResponse = await client.post(
+    sessionStartPath(),
+    undefined,
+    {
+      params: {
+        embed: 'y',
+        isGuestRedirectFromVizportal: 'y',
+        redirect: 'auth',
+      },
+    },
+  )
+
+  const { sessionid: sessionId, sheetId } = sessionStartResponse.data
+
+  await client.post(bootstrapSessionPath(sessionId), undefined, {
     params: {
-      ':embed': 'y',
-      ':showAppBanner': 'false',
-      ':showShareOptions': 'true',
-      ':display_count': 'no',
-      showVizHome: 'no',
+      sheet_id: sheetId,
     },
   })
 
-  const dashboardHtml = cheerio.load(dashboardRes.data as string)
+  // const launchDataViewRes = await client.post(
+  //   lanchDataViewPath(sessionId),
+  //   createFormData({
+  //     dataProviderType: 'selection',
+  //     visualIdPresModel: JSON.stringify({
+  //       // TODO: make this configurable
+  //       worksheet: 'A Table by Confirmation Date',
+  //       dashboard: 'HPAI 2022 Confirmed Detections',
+  //     }),
+  //   }),
+  // )
 
-  const {
-    sheetId,
-    vizql_root: vizqlRoot,
-    sessionid: sessionId,
-  } = JSON.parse(
-    dashboardHtml('#tsConfigContainer').text(),
-  ) as TableauSheetConfig
-
-  const createSessionRoute = `${vizqlRoot}/bootstrapSession/sessions/${sessionId}`
-  const dataDialogViewRoute = `${vizqlRoot}/sessions/${sessionId}/commands/tabdoc/launch-hybrid-view-data-dialog`
-  const dataDialogModelRoute = `${vizqlRoot}/sessions/${sessionId}/commands/tabdoc/get-view-data-dialog-tab-pres-model`
-
-  await client.post(
-    createSessionRoute,
+  const dataTableRes = await client.post(
+    dataTablePath(sessionId),
     createFormData({
-      sheet_id: sheetId,
+      dataProviderType: 'selection',
+      datasource: 'sqlproxy.0qr5woy10ed6k71cdm0ny19ufmg6',
+      connectionName: 'sqlproxy.0qr5woy10ed6k71cdm0ny19ufmg6',
+      isSummaryTable: 'true',
+      visualIdPresModel: JSON.stringify({
+        worksheet: 'A Table by Confirmation Date',
+        dashboard: 'HPAI 2022 Confirmed Detections',
+      }),
     }),
   )
 
-  const dataDialogViewRes = (
-    await client.post(
-      dataDialogViewRoute,
-      createFormData({
-        dataProviderType: 'selection',
-        visualIdPresModel: JSON.stringify({
-          // TODO: make this configurable
-          worksheet: 'A Table by Confirmation Date',
-          dashboard: 'HPAI 2022 Confirmed Detections',
-        }),
-      }),
-    )
-  ).data as VqlQueryResponse
-
-  const dataDialogModelPayload =
-    dataDialogViewRes.vqlCmdResponse.layoutStatus.applicationPresModel.presentationLayerNotification?.find(
-      (notification) =>
-        notification.keyId === 'doc:launch-hybrid-view-data-dialog-event',
-    )?.presModelHolder?.genViewDataDialogPresModel?.dataProviderPresModel
-
-  if (!dataDialogModelPayload)
-    throw new Error('Could not find data provider pres model')
-
-  const { visualIdPresModel, ...dataDialogModelQuery } = dataDialogModelPayload
-
-  const dataRes = (
-    await client.post(
-      dataDialogModelRoute,
-      createFormData({
-        ...dataDialogModelQuery,
-        visualIdPresModel: JSON.stringify(visualIdPresModel),
-        viewDataTableId: '',
-        isSummaryTable: 'true',
-        topN: '100000',
-      }),
-    )
-  ).data as VqlQueryResponse
+  const dataRes = dataTableRes.data
 
   if (
     !dataRes.vqlCmdResponse.cmdResultList[0].commandReturn

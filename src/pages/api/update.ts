@@ -5,10 +5,8 @@ import type { NextApiHandler } from 'next'
 import { AlertEmail } from '$components/email/alert-email'
 
 const TABLEAU_BASE_URL =
-  process.env.TABLEAU_BASE_URL ?? 'https://publicdashboards.dl.usda.gov'
-const TABLEAU_DASHBOARD_ROUTE =
-  process.env.TABLEAU_DASHBOARD_ROUTE ??
-  '/t/MRP_PUB/views/VS_Avian_HPAIConfirmedDetections2022/HPAI2022ConfirmedDetections'
+  process.env.TABLEAU_BASE_URL ??
+  'https://publicdashboards.dl.usda.gov/vizql/t/MRP_PUB/w/VS_Avian_HPAIConfirmedDetections2022/v/HPAI2022ConfirmedDetections'
 
 const MAX_BCC = 49
 
@@ -33,15 +31,10 @@ const handler: NextApiHandler = async (req, res) => {
   if (!resendApiKey && shouldNotify) return { error: 'Email not implemented' }
 
   const baseUrl = process.env.TABLEAU_BASE_URL ?? TABLEAU_BASE_URL
-  const dashboardRoute =
-    process.env.TABLEAU_DASHBOARD_ROUTE ?? TABLEAU_DASHBOARD_ROUTE
 
   console.log('refreshing...')
 
-  const { newHpaiCases, deletedHpaiCaseNames } = await scrapeHpaiCases(
-    baseUrl,
-    dashboardRoute,
-  )
+  const { newHpaiCases, deletedHpaiCaseNames } = await scrapeHpaiCases(baseUrl)
   const subscribers = await prisma.user.findMany({ where: { active: true } })
 
   console.log('refreshed')
