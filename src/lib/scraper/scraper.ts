@@ -6,10 +6,7 @@ import { parseDashboardData } from './parse-dashboard-data'
 export async function scrapeHpaiCases(baseUrl: string, dashboardRoute: string) {
   console.log(`fetching hpai cases...`)
 
-  const rawHpaiCases = await scrapeTableauData<TableauExportData[]>(
-    baseUrl,
-    dashboardRoute,
-  )
+  const rawHpaiCases = await scrapeTableauData<TableauExportData[]>(baseUrl)
 
   const hpaiCases = rawHpaiCases.map(parseDashboardData).flat()
 
