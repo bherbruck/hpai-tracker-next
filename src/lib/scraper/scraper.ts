@@ -3,7 +3,7 @@ import { scrapeTableauData } from './scrape-tableau-data'
 import type { HpaiCase, TableauExportData } from '$lib/types'
 import { parseDashboardData } from './parse-dashboard-data'
 
-export async function scrapeHpaiCases(baseUrl: string, dashboardRoute: string) {
+export async function scrapeHpaiCases(baseUrl: string) {
   console.log(`fetching hpai cases...`)
 
   const rawHpaiCases = await scrapeTableauData<TableauExportData[]>(baseUrl)
