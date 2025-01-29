@@ -7,9 +7,9 @@ export const Loading: FC = () => {
 
   return isLoaded ? (
     createPortal(
-      <div className="modal backdrop-blur bg-transparent modal-open">
-        <button className="btn btn-ghost loading">Loading...</button>
-      </div>,
+      <dialog className="modal backdrop-blur bg-transparent modal-open">
+        <span className="loading loading-dots loading-xl"></span>
+      </dialog>,
       document.body,
     )
   ) : (
