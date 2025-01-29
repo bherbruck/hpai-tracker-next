@@ -8,6 +8,7 @@ import { type ModalProps, Modal } from './Modal'
 export const SubscribeModal = (props: ModalProps) => {
   const [user, setUser] = useLocalStorage<User | null>('user', null)
   const [email, setEmail] = useState(user?.email ?? '')
+  const [isValidEmail, setIsValidEmail] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   // TODO: get the user from the server if in local storage
@@ -63,24 +64,26 @@ export const SubscribeModal = (props: ModalProps) => {
       </div>
 
       <div className="form-control">
-        <div className="input-group">
-          <span>
-            <EnvelopeIcon className="h-6 w-6" />
-          </span>
+        <label className="floating-label">
+          <span>Email</span>
           <input
             required
             type="email"
             placeholder="name@domain.com"
             className={clsx(
-              'input input-bordered flex-1 w-full',
+              'input validator input-bordered flex-1 w-full',
               { 'input-error': error },
               { 'input-disabled': user?.email },
             )}
             disabled={!!user?.email}
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value)
+              setIsValidEmail(e.target.checkValidity())
+            }}
           />
-        </div>
+        </label>
+
         <div className="label">
           <span className="label-text-alt text-error">
             {error ? error : ''}
@@ -107,6 +110,7 @@ export const SubscribeModal = (props: ModalProps) => {
         ) : (
           <button
             className={clsx('btn', { loading: isLoading })}
+            disabled={!isValidEmail}
             onClick={subscribe}
           >
             Subscribe
