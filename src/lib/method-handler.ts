@@ -9,7 +9,7 @@ const requestMethods = {
 } as const
 
 export type RequestMethod = keyof typeof requestMethods
-export type RequestFunction = typeof requestMethods[RequestMethod]
+export type RequestFunction = (typeof requestMethods)[RequestMethod]
 export type MethodHandler<T> = Partial<
   Record<RequestFunction, NextApiHandler<T>>
 >
@@ -27,7 +27,7 @@ const defaultOptions: MethodHandlerOptions<any> = {
 
 export const methodHandler = <T = any>(
   handlers: MethodHandler<T>,
-  options: Partial<MethodHandlerOptions<T>> = defaultOptions
+  options: Partial<MethodHandlerOptions<T>> = defaultOptions,
 ): NextApiHandler<T> => {
   const { notFoundCallback } = { ...defaultOptions, ...options }
 

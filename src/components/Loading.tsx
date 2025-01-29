@@ -10,7 +10,7 @@ export const Loading: FC = () => {
       <div className="modal backdrop-blur bg-transparent modal-open">
         <button className="btn btn-ghost loading">Loading...</button>
       </div>,
-      document.body
+      document.body,
     )
   ) : (
     <></>

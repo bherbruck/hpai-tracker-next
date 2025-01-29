@@ -38,7 +38,7 @@ export const HpaiCaseTable: FC<HpaiCaseTableProps> = ({ hpaiCases }) => (
             <td>{numberWithCommas(flockSize as number)}</td>
             <td>{dateReleased && formatDate(dateReleased)}</td>
           </tr>
-        )
+        ),
       )}
     </tbody>
   </table>

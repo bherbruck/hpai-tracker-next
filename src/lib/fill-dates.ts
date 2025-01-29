@@ -1,12 +1,12 @@
 export const fillDates = (startDate: Date, endDate: Date): Date[] => {
   const msPerDay = 1000 * 3600 * 24
   const numDays = Math.ceil(
-    (endDate.valueOf() - startDate.valueOf()) / msPerDay
+    (endDate.valueOf() - startDate.valueOf()) / msPerDay,
   )
 
   return Array.from(
     { length: numDays },
-    (_, i) => new Date(startDate.valueOf() + i * msPerDay)
+    (_, i) => new Date(startDate.valueOf() + i * msPerDay),
   )
 }
 

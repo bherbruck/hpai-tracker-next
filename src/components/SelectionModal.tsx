@@ -38,7 +38,7 @@ export const SelectionModal: FC<SelectionModalProps> = ({
                 <td>{numberWithCommas(flockSize as number)}</td>
                 <td>{dateReleased && formatDate(dateReleased)}</td>
               </tr>
-            )
+            ),
           )}
         </tbody>
       </table>

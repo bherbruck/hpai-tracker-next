@@ -12,6 +12,6 @@ export const dateRange = function (startDate: Date, endDate: Date) {
     }),
   })
   return dates.map(
-    (_, i) => new Date(startDate.valueOf() + i * DATE_DIFF_INTERVAL.day)
+    (_, i) => new Date(startDate.valueOf() + i * DATE_DIFF_INTERVAL.day),
   )
 }

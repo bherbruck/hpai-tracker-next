@@ -23,7 +23,7 @@ const flattenHpaiCases = (hpaiCases: HpaiCaseGeometry[]) =>
   sort(
     hpaiCases?.flatMap(({ cases }) => cases) ?? [],
     (a, b) =>
-      new Date(b.dateConfirmed).valueOf() - new Date(a.dateConfirmed).valueOf()
+      new Date(b.dateConfirmed).valueOf() - new Date(a.dateConfirmed).valueOf(),
   )
 
 const chartHpaiCases = (hpaiCases: HpaiCase[]): CumulativeHpaiCase[] => {
@@ -32,26 +32,29 @@ const chartHpaiCases = (hpaiCases: HpaiCase[]): CumulativeHpaiCase[] => {
   const sorted = sort(
     hpaiCases,
     (a, b) =>
-      new Date(a.dateConfirmed).valueOf() - new Date(b.dateConfirmed).valueOf()
+      new Date(a.dateConfirmed).valueOf() - new Date(b.dateConfirmed).valueOf(),
   )
 
   const filledDates = fillDates(
     sorted[0]?.dateConfirmed ?? new Date(),
-    new Date()
+    new Date(),
   )
 
-  const grouped = filledDates.reduce((acc, date) => {
-    const hpaiCases = sorted.filter(
-      (h) => h.dateConfirmed.valueOf() === date.valueOf()
-    ) as HpaiCase[]
-    const dateValue = date.valueOf()
-    const flockSize = sum(hpaiCases.map((h) => h.flockSize ?? 0))
+  const grouped = filledDates.reduce(
+    (acc, date) => {
+      const hpaiCases = sorted.filter(
+        (h) => h.dateConfirmed.valueOf() === date.valueOf(),
+      ) as HpaiCase[]
+      const dateValue = date.valueOf()
+      const flockSize = sum(hpaiCases.map((h) => h.flockSize ?? 0))
 
-    return {
-      ...acc,
-      [dateValue]: (acc[dateValue] ?? 0) + flockSize,
-    }
-  }, {} as Record<string, number>)
+      return {
+        ...acc,
+        [dateValue]: (acc[dateValue] ?? 0) + flockSize,
+      }
+    },
+    {} as Record<string, number>,
+  )
 
   const arr = Object.entries(grouped).reduce(
     (acc, [dateConfirmed, flockSize]) => {
@@ -61,11 +64,11 @@ const chartHpaiCases = (hpaiCases: HpaiCase[]): CumulativeHpaiCase[] => {
           dateConfirmed: new Date(Number(dateConfirmed)),
           flockSize:
             flockSize +
-            (acc.length > 0 ? acc[acc.length - 1]?.flockSize ?? 0 : 0),
+            (acc.length > 0 ? (acc[acc.length - 1]?.flockSize ?? 0) : 0),
         },
       ]
     },
-    [] as CumulativeHpaiCase[]
+    [] as CumulativeHpaiCase[],
   )
 
   return arr
@@ -103,7 +106,7 @@ const summarizeHpaiCases = (hpaiCases: HpaiCase[]): Stats => {
       },
       seenStates: [],
       seenCounties: [],
-    } as { stats: Stats; seenStates: string[]; seenCounties: string[] }
+    } as { stats: Stats; seenStates: string[]; seenCounties: string[] },
   )
 
   return temp.stats
@@ -116,7 +119,7 @@ export const StatsModal: FC<StatsModalProps> = ({
 }) => {
   const flatCases = useMemo(
     () => flattenHpaiCases(hpaiCases ?? []),
-    [hpaiCases]
+    [hpaiCases],
   )
   const stats = useMemo(() => summarizeHpaiCases(flatCases), [flatCases])
   const cumulativeCases = useMemo(() => chartHpaiCases(flatCases), [flatCases])
@@ -135,7 +138,7 @@ export const StatsModal: FC<StatsModalProps> = ({
             <div className="stat-title">Birds Affected</div>
             <div className="stat-value">
               {numberWithCommas(
-                ((stats?.totalDeaths ?? 0) / 1_000_000).toFixed(1)
+                ((stats?.totalDeaths ?? 0) / 1_000_000).toFixed(1),
               )}
               M
             </div>

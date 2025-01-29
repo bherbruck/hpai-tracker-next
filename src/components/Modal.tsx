@@ -40,7 +40,7 @@ export const Modal: FC<ModalProps> = ({
             </div>
           ) : null}
         </div>,
-        document.body
+        document.body,
       )
     : null
 }

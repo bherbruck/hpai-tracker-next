@@ -1,25 +1,25 @@
 {
-	"name": "Debian",
-	"image": "mcr.microsoft.com/devcontainers/base:bullseye",
-	"features": {
-		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
-		"ghcr.io/devcontainers/features/node:1": {}
-	},
-	"customizations": {
-		"vscode": {
-			"extensions": [
-				"dbaeumer.vscode-eslint",
-				"esbenp.prettier-vscode",
-				"mtxr.sqltools",
-				"mtxr.sqltools-driver-pg",
-				"esbenp.prettier-vscode",
-				"GitHub.copilot",
-				"mikestead.dotenv",
-				"Prisma.prisma",
-				"WillLuke.nextjs",
-				"bradlc.vscode-tailwindcss",
-				"rangav.vscode-thunder-client"
-			]
-		}
-	}
+  "name": "Debian",
+  "image": "mcr.microsoft.com/devcontainers/base:bullseye",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/node:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "mtxr.sqltools",
+        "mtxr.sqltools-driver-pg",
+        "esbenp.prettier-vscode",
+        "GitHub.copilot",
+        "mikestead.dotenv",
+        "Prisma.prisma",
+        "WillLuke.nextjs",
+        "bradlc.vscode-tailwindcss",
+        "rangav.vscode-thunder-client"
+      ]
+    }
+  }
 }

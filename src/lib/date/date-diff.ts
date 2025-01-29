@@ -17,7 +17,7 @@ const DEFAULT_DATA_DIFF_OPTIONS: DateDiffOptions = {
 export const dateDiff = (
   startDate: Date,
   endDate: Date,
-  options?: Partial<DateDiffOptions>
+  options?: Partial<DateDiffOptions>,
 ): number => {
   const { interval, includeLastDate } = {
     ...DEFAULT_DATA_DIFF_OPTIONS,

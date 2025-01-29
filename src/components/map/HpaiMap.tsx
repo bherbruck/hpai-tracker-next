@@ -19,15 +19,15 @@ const areAllCasesReleased = (hpaiCases: HpaiCase[]) =>
 
 const hasNewCases = (hpaiCases: HpaiCase[]) =>
   hpaiCases.some(
-    (caseData) => dateDiff(caseData.dateConfirmed, new Date()) <= 7
+    (caseData) => dateDiff(caseData.dateConfirmed, new Date()) <= 7,
   )
 
 const computeCountyColor = (hpaiCases: HpaiCase[]) => {
   return hasNewCases(hpaiCases)
     ? 'hsl(var(--wa))'
     : areAllCasesReleased(hpaiCases)
-    ? 'hsl(var(--a))'
-    : 'hsl(var(--er))'
+      ? 'hsl(var(--a))'
+      : 'hsl(var(--er))'
 }
 
 export const HpaiMap: FC<HpaiMapProps> = ({
@@ -102,7 +102,7 @@ export const HpaiMap: FC<HpaiMapProps> = ({
           }}
           onEachFeature={(_, layer) => {
             layer.on('click', () =>
-              onCountyClick?.({ state, county, geoJSON, cases })
+              onCountyClick?.({ state, county, geoJSON, cases }),
             )
           }}
         >
