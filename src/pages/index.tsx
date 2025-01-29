@@ -20,20 +20,49 @@ import { FilterBar } from '$components/FilterBar'
 import { Loading } from '$components/Loading'
 import { BMAC } from '$components/BMAC'
 
-type Filters = {
-  Commercial: boolean
-  WOAH: boolean
-  Layer: boolean
-  Turkey: boolean
-  Broiler: boolean
+// Optional: Use TypeScript enums for filters
+enum FilterKeys {
+  Commercial = 'Commercial',
+  WOAH = 'WOAH',
+  Layer = 'Layer',
+  Turkey = 'Turkey',
+  Broiler = 'Broiler',
 }
 
+type Filters = Record<FilterKeys, boolean>
+
 const INITIAL_FILTERS: Filters = {
-  Commercial: false,
-  WOAH: false,
-  Layer: false,
-  Turkey: false,
-  Broiler: false,
+  [FilterKeys.Commercial]: false,
+  [FilterKeys.WOAH]: false,
+  [FilterKeys.Layer]: false,
+  [FilterKeys.Turkey]: false,
+  [FilterKeys.Broiler]: false,
+}
+
+const fetchHpaiCaseGeometries = async (
+  url: string,
+): Promise<HpaiCaseGeometry[]> => {
+  const response = await fetch(url)
+  const json = (await response.json()) as HpaiCaseGeometryResponse[]
+
+  return json.map((geometry) => ({
+    ...geometry,
+    cases: geometry.cases
+      .map((hpaiCase) => ({
+        ...hpaiCase,
+        dateConfirmed: new Date(hpaiCase.dateConfirmed),
+        dateReleased: hpaiCase.dateReleased
+          ? new Date(hpaiCase.dateReleased)
+          : null,
+        dateCreated: hpaiCase.dateCreated
+          ? new Date(hpaiCase.dateCreated)
+          : null,
+        dateUpdated: hpaiCase.dateUpdated
+          ? new Date(hpaiCase.dateUpdated)
+          : null,
+      }))
+      .sort((a, b) => b.dateConfirmed.valueOf() - a.dateConfirmed.valueOf()), // Pre-sorted
+  }))
 }
 
 const filterHpaiCases = (
@@ -42,13 +71,20 @@ const filterHpaiCases = (
   filterOptions?: {
     recentOnly?: boolean
   },
+  thirtyDaysAgo?: Date,
 ): HpaiCaseGeometry[] => {
   if (!hpaiCases?.length) return []
 
   if (!activeFilters.length && !filterOptions?.recentOnly) return hpaiCases
 
-  const thirtyDaysAgo = new Date()
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+  const effectiveThirtyDaysAgo = filterOptions?.recentOnly
+    ? thirtyDaysAgo ||
+      (() => {
+        const date = new Date()
+        date.setDate(date.getDate() - 30)
+        return date
+      })()
+    : null
 
   return hpaiCases
     .map((geometry) => {
@@ -60,7 +96,7 @@ const filterHpaiCases = (
         const isRecentOrActive =
           !filterOptions?.recentOnly ||
           !hpaiCase.dateReleased ||
-          hpaiCase.dateConfirmed >= thirtyDaysAgo
+          hpaiCase.dateConfirmed >= (effectiveThirtyDaysAgo as Date)
 
         return matchesCategory && isRecentOrActive
       })
@@ -68,6 +104,38 @@ const filterHpaiCases = (
       return filteredCases.length ? { ...geometry, cases: filteredCases } : null
     })
     .filter((geometry): geometry is HpaiCaseGeometry => geometry !== null)
+}
+
+const useFilteredHpaiCases = (
+  hpaiCases: HpaiCaseGeometry[] | undefined,
+  activeFilters: string[],
+  thirtyDaysAgo: Date,
+) => {
+  return useMemo(() => {
+    if (!hpaiCases?.length) return { filtered: [], recent: [] }
+
+    if (!activeFilters.length) {
+      return {
+        filtered: hpaiCases,
+        recent: hpaiCases.filter((geometry) =>
+          geometry.cases.some(
+            (hpaiCase) =>
+              !hpaiCase.dateReleased || hpaiCase.dateConfirmed >= thirtyDaysAgo,
+          ),
+        ),
+      }
+    }
+
+    const filtered = filterHpaiCases(hpaiCases, activeFilters)
+    const recent = filterHpaiCases(
+      hpaiCases,
+      activeFilters,
+      { recentOnly: true },
+      thirtyDaysAgo,
+    )
+
+    return { filtered, recent }
+  }, [hpaiCases, activeFilters, thirtyDaysAgo])
 }
 
 const Home: NextPage = () => {
@@ -78,87 +146,54 @@ const Home: NextPage = () => {
 
   const { theme, setTheme } = useTheme()
 
-  const { data: hpaiCaseGeometries } = useSWR<HpaiCaseGeometry[]>(
+  const { data: hpaiCaseGeometries, error } = useSWR<HpaiCaseGeometry[]>(
     '/api/hpai-case-geometry',
-    async (url: string) => {
-      const response = await fetch(url)
-      const json = (await response.json()) as HpaiCaseGeometryResponse[]
-
-      return json.map((geometry) => ({
-        ...geometry,
-        cases: geometry.cases.map((hpaiCase) => ({
-          ...hpaiCase,
-          dateConfirmed: new Date(hpaiCase.dateConfirmed),
-          dateReleased: hpaiCase.dateReleased
-            ? new Date(hpaiCase.dateReleased)
-            : null,
-          dateCreated: hpaiCase.dateCreated
-            ? new Date(hpaiCase.dateCreated)
-            : null,
-          dateUpdated: hpaiCase.dateUpdated
-            ? new Date(hpaiCase.dateUpdated)
-            : null,
-        })),
-      }))
-    },
+    fetchHpaiCaseGeometries,
   )
 
   const [filters, setFilters] = useState<Filters>(INITIAL_FILTERS)
-  const [selectedHpaiCases, setSelectedHpaiCases] = useState<HpaiCaseGeometry>()
+  const [selectedHpaiCases, setSelectedHpaiCases] = useState<
+    HpaiCaseGeometry | undefined
+  >(undefined)
 
   const activeFilters = useMemo(
-    () =>
-      Object.entries(filters).reduce<string[]>((acc, [key, isActive]) => {
-        if (isActive) acc.push(key)
-        return acc
-      }, []),
+    () => Object.keys(filters).filter((key) => filters[key as FilterKeys]),
     [filters],
   )
 
-  const filteredHpaiCaseGeometries = useMemo(
-    () => filterHpaiCases(hpaiCaseGeometries ?? [], activeFilters),
-    [activeFilters, hpaiCaseGeometries],
-  )
+  const thirtyDaysAgo = useMemo(() => {
+    const date = new Date()
+    date.setDate(date.getDate() - 30)
+    return date
+  }, [])
 
-  const mapHpaiCaseGeometries = useMemo(
-    () =>
-      filterHpaiCases(hpaiCaseGeometries ?? [], activeFilters, {
-        recentOnly: true,
-      }),
-    [activeFilters, hpaiCaseGeometries],
-  )
+  const {
+    filtered: filteredHpaiCaseGeometries,
+    recent: mapHpaiCaseGeometries,
+  } = useFilteredHpaiCases(hpaiCaseGeometries, activeFilters, thirtyDaysAgo)
 
   const handleSelection = useCallback(
     (hpaiCases: HpaiCaseGeometry) => {
-      const sortedCases = [...hpaiCases.cases].sort(
-        (a, b) => b.dateConfirmed.valueOf() - a.dateConfirmed.valueOf(),
-      )
-      setSelectedHpaiCases({ ...hpaiCases, cases: sortedCases })
+      setSelectedHpaiCases(hpaiCases)
       selectionModal.open()
     },
     [selectionModal],
   )
 
-  const handleFilterChange = useCallback(
-    (key: keyof Filters, value: boolean) => {
-      setFilters((prev) => ({ ...prev, [key]: value }))
-    },
-    [],
-  )
+  const handleFilterChange = useCallback((key: FilterKeys, value: boolean) => {
+    setFilters((prev) => ({ ...prev, [key]: value }))
+  }, [])
 
-  const filterBarProps = useMemo(
-    () => ({
-      booleanFilters: Object.keys(INITIAL_FILTERS).reduce(
-        (acc, key) => ({
-          ...acc,
-          [key]: (isActive: boolean) =>
-            handleFilterChange(key as keyof Filters, isActive),
-        }),
-        {},
-      ),
-    }),
-    [handleFilterChange],
-  )
+  const booleanFilters = useMemo(() => {
+    const handlers: Record<string, (isActive: boolean) => void> = {}
+    for (const key of Object.keys(INITIAL_FILTERS)) {
+      handlers[key] = (isActive: boolean) =>
+        handleFilterChange(key as FilterKeys, isActive)
+    }
+    return handlers
+  }, [handleFilterChange])
+
+  const filterBarProps = { booleanFilters }
 
   return (
     <div className="inset-0 absolute">
