@@ -17,30 +17,21 @@ export const Modal: FC<ModalProps> = ({
 
   useEffect(() => setLoaded(true), [])
 
-  return isLoaded
-    ? createPortal(
-        <div
-          className={`modal backdrop-blur bg-transparent z-[10000] ${
-            isOpen ? 'modal-open' : null
-          }`}
-          onClick={({ target, currentTarget }) =>
-            target === currentTarget && close()
-          }
-          onKeyDown={({ key }) => key === 'Escape' && close()}
+  return isLoaded ? (
+    <dialog
+      className={`modal ${isOpen ? 'modal-open' : null}`}
+      onKeyDown={({ key }) => key === 'Escape' && close()}
+    >
+      <div className={`modal-box ${className}`}>
+        <button
+          className="btn btn-sm btn-circle absolute right-2 top-2"
+          onClick={close}
         >
-          {isOpen ? (
-            <div className={`modal-box ${className}`}>
-              <button
-                className="btn btn-sm btn-circle absolute right-2 top-2"
-                onClick={close}
-              >
-                ✕
-              </button>
-              {children}
-            </div>
-          ) : null}
-        </div>,
-        document.body,
-      )
-    : null
+          ✕
+        </button>
+        {children}
+      </div>
+      <div className="modal-backdrop backdrop-blur" onClick={close} />
+    </dialog>
+  ) : null
 }
