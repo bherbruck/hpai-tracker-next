@@ -9,34 +9,24 @@ import { SubscribeModal } from '$components/SubscribeModal'
 import { SelectionModal } from '$components/SelectionModal'
 import { ClientSideMap } from '$components/map/ClientSideMap'
 import useSWR from 'swr'
-import type {
-  HpaiCase,
-  HpaiCaseGeometry,
-  HpaiCaseGeometryResponse,
-} from '$lib/types'
+import type { HpaiCaseGeometry, HpaiCaseGeometryResponse } from '$lib/types'
 import { useCallback, useMemo, useState } from 'react'
 import { useTheme } from '$hooks/useTheme'
 import { FilterBar } from '$components/FilterBar'
 import { Loading } from '$components/Loading'
 import { BMAC } from '$components/BMAC'
 
-// Optional: Use TypeScript enums for filters
-enum FilterKeys {
-  Commercial = 'Commercial',
-  WOAH = 'WOAH',
-  Layer = 'Layer',
-  Turkey = 'Turkey',
-  Broiler = 'Broiler',
-}
+// Define FilterKeys as a string union type
+type FilterKeys = 'Commercial' | 'WOAH' | 'Layer' | 'Turkey' | 'Broiler'
 
 type Filters = Record<FilterKeys, boolean>
 
 const INITIAL_FILTERS: Filters = {
-  [FilterKeys.Commercial]: false,
-  [FilterKeys.WOAH]: false,
-  [FilterKeys.Layer]: false,
-  [FilterKeys.Turkey]: false,
-  [FilterKeys.Broiler]: false,
+  Commercial: false,
+  WOAH: false,
+  Layer: false,
+  Turkey: false,
+  Broiler: false,
 }
 
 const fetchHpaiCaseGeometries = async (
@@ -185,10 +175,13 @@ const Home: NextPage = () => {
   }, [])
 
   const booleanFilters = useMemo(() => {
-    const handlers: Record<string, (isActive: boolean) => void> = {}
-    for (const key of Object.keys(INITIAL_FILTERS)) {
-      handlers[key] = (isActive: boolean) =>
-        handleFilterChange(key as FilterKeys, isActive)
+    const handlers: Record<FilterKeys, (isActive: boolean) => void> = {
+      Commercial: (isActive: boolean) =>
+        handleFilterChange('Commercial', isActive),
+      WOAH: (isActive: boolean) => handleFilterChange('WOAH', isActive),
+      Layer: (isActive: boolean) => handleFilterChange('Layer', isActive),
+      Turkey: (isActive: boolean) => handleFilterChange('Turkey', isActive),
+      Broiler: (isActive: boolean) => handleFilterChange('Broiler', isActive),
     }
     return handlers
   }, [handleFilterChange])
