@@ -1,5 +1,3 @@
-import Script from 'next/script'
-
 export const BMAC = () => (
   <script
     data-name="BMC-Widget"
@@ -8,7 +6,7 @@ export const BMAC = () => (
     data-id="bherbruck"
     data-description="Support me on Buy me a coffee!"
     data-message=""
-    data-color="hsl(var(--a))"
+    data-color="var(--color-accent)"
     data-position="Right"
     data-x_margin="18"
     data-y_margin="18"

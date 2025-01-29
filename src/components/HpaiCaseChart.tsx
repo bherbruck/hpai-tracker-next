@@ -13,21 +13,21 @@ export const HpaiCaseChart: FC<HpaiCaseChartProps> = ({ cumulativeCases }) => (
     <AreaChart data={cumulativeCases}>
       <defs>
         <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-          <stop stopColor="hsl(var(--a))" />
-          <stop offset="100%" stopColor="hsl(var(--a))" stopOpacity={0} />
+          <stop stopColor="var(--color-accent)" />
+          <stop offset="100%" stopColor="var(--color-accent)" stopOpacity={0} />
         </linearGradient>
       </defs>
       <XAxis
         dataKey="dateConfirmed"
-        tick={{ fill: 'hsl(var(--bc))' }}
-        tickLine={{ stroke: 'hsl(var(--bc))', opacity: 0.75 }}
+        tick={{ fill: 'var(--color-base-content)' }}
+        tickLine={{ stroke: 'var(--color-base-content)', opacity: 0.75 }}
         axisLine={{ opacity: 0 }}
         tickFormatter={formatDate}
       />
       <Area
         type="monotone"
         dataKey="flockSize"
-        stroke="hsl(var(--a))"
+        stroke="var(--color-accent)"
         fill="url(#chartGradient)"
         strokeWidth={5}
         strokeLinecap="round"

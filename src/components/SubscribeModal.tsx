@@ -1,8 +1,9 @@
-import { useLocalStorage } from 'react-use'
 import { EnvelopeIcon } from '@heroicons/react/24/outline'
-import { type ModalProps, Modal } from './Modal'
 import type { User } from '@prisma/client'
+import clsx from 'clsx'
 import { useState } from 'react'
+import { useLocalStorage } from 'react-use'
+import { type ModalProps, Modal } from './Modal'
 
 export const SubscribeModal = (props: ModalProps) => {
   const [user, setUser] = useLocalStorage<User | null>('user', null)
@@ -67,11 +68,14 @@ export const SubscribeModal = (props: ModalProps) => {
             <EnvelopeIcon className="h-6 w-6" />
           </span>
           <input
+            required
             type="email"
             placeholder="name@domain.com"
-            className={`input input-bordered flex-1 w-full
-            ${error ? 'input-error' : ''}
-            ${user?.email ? 'input-disabled' : ''}`}
+            className={clsx(
+              'input input-bordered flex-1 w-full',
+              { 'input-error': error },
+              { 'input-disabled': user?.email },
+            )}
             disabled={!!user?.email}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -95,14 +99,14 @@ export const SubscribeModal = (props: ModalProps) => {
       <div className="modal-action">
         {user?.email ? (
           <button
-            className={`btn ${isLoading ? 'loading' : ''}`}
+            className={clsx('btn', { loading: isLoading })}
             onClick={unsubscribe}
           >
             Unsubscribe
           </button>
         ) : (
           <button
-            className={`btn ${isLoading ? 'loading' : ''}`}
+            className={clsx('btn', { loading: isLoading })}
             onClick={subscribe}
           >
             Subscribe

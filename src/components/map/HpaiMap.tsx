@@ -24,10 +24,10 @@ const hasNewCases = (hpaiCases: HpaiCase[]) =>
 
 const computeCountyColor = (hpaiCases: HpaiCase[]) => {
   return hasNewCases(hpaiCases)
-    ? 'hsl(var(--wa))'
+    ? 'var(--color-warning)'
     : areAllCasesReleased(hpaiCases)
-      ? 'hsl(var(--a))'
-      : 'hsl(var(--er))'
+      ? 'var(--color-accent)'
+      : 'var(--color-error)'
 }
 
 export const HpaiMap: FC<HpaiMapProps> = ({

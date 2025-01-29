@@ -1,5 +1,5 @@
 import { type ModalProps, Modal } from './Modal'
-import { type FC, useDebugValue, useMemo } from 'react'
+import { type FC, useMemo, useCallback } from 'react'
 import type {
   HpaiCase,
   Stats,
@@ -10,125 +10,105 @@ import { numberWithCommas } from '$lib/number-comma'
 import { HpaiCaseChart } from './HpaiCaseChart'
 import { HpaiCaseTable } from './HpaiCaseTable'
 import { fillDates } from '$lib/fill-dates'
-import { sum } from '$lib/sum'
 
 type StatsModalProps = ModalProps & {
   hpaiCases?: HpaiCaseGeometry[]
 }
 
-const sort = <T extends {}>(arr: T[], compareFn: (a: T, b: T) => number): T[] =>
-  [...arr].sort((a, b) => compareFn(a, b))
-
-const flattenHpaiCases = (hpaiCases: HpaiCaseGeometry[]) =>
-  sort(
-    hpaiCases?.flatMap(({ cases }) => cases) ?? [],
-    (a, b) =>
-      new Date(b.dateConfirmed).valueOf() - new Date(a.dateConfirmed).valueOf(),
-  )
-
-const chartHpaiCases = (hpaiCases: HpaiCase[]): CumulativeHpaiCase[] => {
-  // TODO: optimize this
-
-  const sorted = sort(
-    hpaiCases,
-    (a, b) =>
-      new Date(a.dateConfirmed).valueOf() - new Date(b.dateConfirmed).valueOf(),
-  )
-
-  const filledDates = fillDates(
-    sorted[0]?.dateConfirmed ?? new Date(),
-    new Date(),
-  )
-
-  const grouped = filledDates.reduce(
-    (acc, date) => {
-      const hpaiCases = sorted.filter(
-        (h) => h.dateConfirmed.valueOf() === date.valueOf(),
-      ) as HpaiCase[]
-      const dateValue = date.valueOf()
-      const flockSize = sum(hpaiCases.map((h) => h.flockSize ?? 0))
-
-      return {
-        ...acc,
-        [dateValue]: (acc[dateValue] ?? 0) + flockSize,
-      }
-    },
-    {} as Record<string, number>,
-  )
-
-  const arr = Object.entries(grouped).reduce(
-    (acc, [dateConfirmed, flockSize]) => {
-      return [
-        ...acc,
-        {
-          dateConfirmed: new Date(Number(dateConfirmed)),
-          flockSize:
-            flockSize +
-            (acc.length > 0 ? (acc[acc.length - 1]?.flockSize ?? 0) : 0),
-        },
-      ]
-    },
-    [] as CumulativeHpaiCase[],
-  )
-
-  return arr
+// Memoized sorting function
+const useSortedData = <T,>(
+  data: T[],
+  compareFn: (a: T, b: T) => number,
+  deps: any[] = [],
+) => {
+  return useMemo(() => [...data].sort(compareFn), [data, ...deps])
 }
 
-const summarizeHpaiCases = (hpaiCases: HpaiCase[]): Stats => {
-  const temp = hpaiCases.reduce(
-    ({ stats, seenStates, seenCounties }, { state, county, flockSize }) => {
-      const isStateSeen = seenStates.includes(state)
-      const stateCounty = `${state}-${county}`
-      const isCountySeen = isStateSeen && seenCounties.includes(stateCounty)
-      return {
-        stats: {
-          totalCases: stats.totalCases + 1,
-          totalDeaths: stats.totalDeaths + (flockSize ?? 0),
-          affectedStates: isStateSeen
-            ? stats.affectedStates
-            : stats.affectedStates + 1,
-          affectedCounties: isCountySeen
-            ? stats.affectedCounties
-            : stats.affectedCounties + 1,
-        },
-        seenStates: isStateSeen ? seenStates : [...seenStates, state],
-        seenCounties: isCountySeen
-          ? seenCounties
-          : [...seenCounties, stateCounty],
-      }
-    },
-    {
-      stats: {
-        totalCases: 0,
-        totalDeaths: 0,
-        affectedStates: 0,
-        affectedCounties: 0,
-      },
-      seenStates: [],
-      seenCounties: [],
-    } as { stats: Stats; seenStates: string[]; seenCounties: string[] },
-  )
+// Optimized date comparison function
+const dateCompare = (a: Date, b: Date) => a.valueOf() - b.valueOf()
 
-  return temp.stats
+// Optimized flattening function with Set for deduplication
+const useFlattenedHpaiCases = (hpaiCases: HpaiCaseGeometry[]) => {
+  return useMemo(() => {
+    const cases = new Set(hpaiCases?.flatMap(({ cases }) => cases))
+    return Array.from(cases).sort((a, b) =>
+      dateCompare(new Date(b.dateConfirmed), new Date(a.dateConfirmed)),
+    )
+  }, [hpaiCases])
+}
+
+// Optimized chart data processing
+const useChartHpaiCases = (hpaiCases: HpaiCase[]): CumulativeHpaiCase[] => {
+  return useMemo(() => {
+    if (!hpaiCases.length) return []
+
+    // Sort once at the beginning
+    const sorted = hpaiCases.sort((a, b) =>
+      dateCompare(new Date(a.dateConfirmed), new Date(b.dateConfirmed)),
+    )
+
+    const startDate = new Date(sorted[0].dateConfirmed)
+    const endDate = new Date()
+    const dates = fillDates(startDate, endDate)
+
+    // Create a Map for faster lookups
+    const dateMap = new Map<number, number>()
+
+    // Group by date in a single pass
+    sorted.forEach(({ dateConfirmed, flockSize = 0 }) => {
+      const dateValue = new Date(dateConfirmed).valueOf()
+      dateMap.set(dateValue, (dateMap.get(dateValue) ?? 0) + (flockSize ?? 0))
+    })
+
+    // Calculate cumulative sum in a single pass
+    let cumSum = 0
+    return dates.map((date) => {
+      const dateValue = date.valueOf()
+      cumSum += dateMap.get(dateValue) ?? 0
+      return {
+        dateConfirmed: date,
+        flockSize: cumSum,
+      }
+    })
+  }, [hpaiCases])
+}
+
+// Optimized stats calculation using Set for unique values
+const useHpaiStats = (hpaiCases: HpaiCase[]): Stats => {
+  return useMemo(() => {
+    const states = new Set<string>()
+    const counties = new Set<string>()
+    let totalDeaths = 0
+
+    hpaiCases.forEach(({ state, county, flockSize = 0 }) => {
+      states.add(state)
+      counties.add(`${state}-${county}`)
+      totalDeaths += flockSize ?? 0
+    })
+
+    return {
+      totalCases: hpaiCases.length,
+      totalDeaths,
+      affectedStates: states.size,
+      affectedCounties: counties.size,
+    }
+  }, [hpaiCases])
 }
 
 export const StatsModal: FC<StatsModalProps> = ({
-  hpaiCases,
-  // stats,
+  hpaiCases = [],
   ...props
 }) => {
-  const flatCases = useMemo(
-    () => flattenHpaiCases(hpaiCases ?? []),
-    [hpaiCases],
-  )
-  const stats = useMemo(() => summarizeHpaiCases(flatCases), [flatCases])
-  const cumulativeCases = useMemo(() => chartHpaiCases(flatCases), [flatCases])
+  const flatCases = useFlattenedHpaiCases(hpaiCases)
+  const stats = useHpaiStats(flatCases)
+  const cumulativeCases = useChartHpaiCases(flatCases)
 
-  useDebugValue(flatCases)
-  useDebugValue(cumulativeCases)
+  const formatMillions = useCallback(
+    (value: number) => `${numberWithCommas((value / 1_000_000).toFixed(1))}M`,
+    [],
+  )
 
   return (
-    // TODO: make this mobile friendly
     <Modal {...props} className="max-w-4xl">
       <div className="flex flex-col gap-4 w-full h-[75vh]">
         <h3 className="font-bold text-lg">Stats</h3>
@@ -137,30 +117,28 @@ export const StatsModal: FC<StatsModalProps> = ({
           <div className="stat">
             <div className="stat-title">Birds Affected</div>
             <div className="stat-value">
-              {numberWithCommas(
-                ((stats?.totalDeaths ?? 0) / 1_000_000).toFixed(1),
-              )}
-              M
+              {formatMillions(stats.totalDeaths)}
             </div>
           </div>
 
           <div className="stat">
             <div className="stat-title">Total Cases</div>
             <div className="stat-value">
-              {numberWithCommas(stats?.totalCases ?? 0)}
+              {numberWithCommas(stats.totalCases)}
             </div>
           </div>
 
           <div className="stat">
             <div className="stat-title">States Affected</div>
             <div className="stat-value">
-              {numberWithCommas(stats?.affectedStates ?? 0)}
+              {numberWithCommas(stats.affectedStates)}
             </div>
           </div>
+
           <div className="stat">
             <div className="stat-title">Counties Affected</div>
             <div className="stat-value">
-              {numberWithCommas(stats?.affectedCounties ?? 0)}
+              {numberWithCommas(stats.affectedCounties)}
             </div>
           </div>
         </div>
