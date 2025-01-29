@@ -9,8 +9,12 @@ import { SubscribeModal } from '$components/SubscribeModal'
 import { SelectionModal } from '$components/SelectionModal'
 import { ClientSideMap } from '$components/map/ClientSideMap'
 import useSWR from 'swr'
-import type { HpaiCaseGeometry, HpaiCaseGeometryResponse } from '$lib/types'
-import { useDebugValue, useMemo, useState } from 'react'
+import type {
+  HpaiCase,
+  HpaiCaseGeometry,
+  HpaiCaseGeometryResponse,
+} from '$lib/types'
+import { useCallback, useMemo, useState } from 'react'
 import { useTheme } from '$hooks/useTheme'
 import { FilterBar } from '$components/FilterBar'
 import { Loading } from '$components/Loading'
@@ -24,41 +28,62 @@ type Filters = {
   Broiler: boolean
 }
 
-const filterHpaiCases = (
-  hpaiCases: HpaiCaseGeometry[],
-  filters: string[],
-): HpaiCaseGeometry[] => {
-  if (filters.length === 0) return hpaiCases
-  const filteredGeometries = hpaiCases.reduce((acc, cur) => {
-    const filteredCases = {
-      ...cur,
-      cases: cur.cases.filter((hpaiCase) =>
-        filters.some((filter) => hpaiCase.flockType.includes(filter)),
-      ),
-    } as HpaiCaseGeometry
-
-    return [
-      ...acc,
-      filteredCases.cases.length > 0 ? filteredCases : undefined,
-    ].filter((value) => value) as HpaiCaseGeometry[]
-  }, [] as HpaiCaseGeometry[])
-
-  return filteredGeometries
+const INITIAL_FILTERS: Filters = {
+  Commercial: false,
+  WOAH: false,
+  Layer: false,
+  Turkey: false,
+  Broiler: false,
 }
 
-const Home: NextPage = (props) => {
+const filterHpaiCases = (
+  hpaiCases: HpaiCaseGeometry[],
+  activeFilters: string[],
+  filterOptions?: {
+    recentOnly?: boolean
+  },
+): HpaiCaseGeometry[] => {
+  if (!hpaiCases?.length) return []
+
+  if (!activeFilters.length && !filterOptions?.recentOnly) return hpaiCases
+
+  const thirtyDaysAgo = new Date()
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+
+  return hpaiCases
+    .map((geometry) => {
+      const filteredCases = geometry.cases.filter((hpaiCase) => {
+        const matchesCategory =
+          !activeFilters.length ||
+          activeFilters.some((filter) => hpaiCase.flockType.includes(filter))
+
+        const isRecentOrActive =
+          !filterOptions?.recentOnly ||
+          !hpaiCase.dateReleased ||
+          hpaiCase.dateConfirmed >= thirtyDaysAgo
+
+        return matchesCategory && isRecentOrActive
+      })
+
+      return filteredCases.length ? { ...geometry, cases: filteredCases } : null
+    })
+    .filter((geometry): geometry is HpaiCaseGeometry => geometry !== null)
+}
+
+const Home: NextPage = () => {
   const statsModal = useModal()
   const aboutModal = useModal()
   const subscribeModal = useModal()
   const selectionModal = useModal()
 
-  // maybe load this server-side?
+  const { theme, setTheme } = useTheme()
+
   const { data: hpaiCaseGeometries } = useSWR<HpaiCaseGeometry[]>(
     '/api/hpai-case-geometry',
     async (url: string) => {
-      const json = (await (
-        await fetch(url)
-      ).json()) as HpaiCaseGeometryResponse[]
+      const response = await fetch(url)
+      const json = (await response.json()) as HpaiCaseGeometryResponse[]
+
       return json.map((geometry) => ({
         ...geometry,
         cases: geometry.cases.map((hpaiCase) => ({
@@ -78,33 +103,62 @@ const Home: NextPage = (props) => {
     },
   )
 
-  const [filters, setFilters] = useState<Filters>({
-    Commercial: false,
-    WOAH: false,
-    Layer: false,
-    Turkey: false,
-    Broiler: false,
-  })
-
-  const filteredHpaiCaseGeometries = useMemo(
-    () =>
-      filterHpaiCases(
-        hpaiCaseGeometries ?? [],
-        Object.entries(filters)
-          .filter(([, isActive]) => isActive)
-          .map(([key]) => key),
-      ),
-    [filters, hpaiCaseGeometries],
-  )
-
+  const [filters, setFilters] = useState<Filters>(INITIAL_FILTERS)
   const [selectedHpaiCases, setSelectedHpaiCases] = useState<HpaiCaseGeometry>()
 
-  const handleSelection = <T extends HpaiCaseGeometry>(hpaiCases: T) => {
-    setSelectedHpaiCases(hpaiCases)
-    selectionModal.open()
-  }
+  const activeFilters = useMemo(
+    () =>
+      Object.entries(filters).reduce<string[]>((acc, [key, isActive]) => {
+        if (isActive) acc.push(key)
+        return acc
+      }, []),
+    [filters],
+  )
 
-  const { theme, setTheme } = useTheme()
+  const filteredHpaiCaseGeometries = useMemo(
+    () => filterHpaiCases(hpaiCaseGeometries ?? [], activeFilters),
+    [activeFilters, hpaiCaseGeometries],
+  )
+
+  const mapHpaiCaseGeometries = useMemo(
+    () =>
+      filterHpaiCases(hpaiCaseGeometries ?? [], activeFilters, {
+        recentOnly: true,
+      }),
+    [activeFilters, hpaiCaseGeometries],
+  )
+
+  const handleSelection = useCallback(
+    (hpaiCases: HpaiCaseGeometry) => {
+      const sortedCases = [...hpaiCases.cases].sort(
+        (a, b) => b.dateConfirmed.valueOf() - a.dateConfirmed.valueOf(),
+      )
+      setSelectedHpaiCases({ ...hpaiCases, cases: sortedCases })
+      selectionModal.open()
+    },
+    [selectionModal],
+  )
+
+  const handleFilterChange = useCallback(
+    (key: keyof Filters, value: boolean) => {
+      setFilters((prev) => ({ ...prev, [key]: value }))
+    },
+    [],
+  )
+
+  const filterBarProps = useMemo(
+    () => ({
+      booleanFilters: Object.keys(INITIAL_FILTERS).reduce(
+        (acc, key) => ({
+          ...acc,
+          [key]: (isActive: boolean) =>
+            handleFilterChange(key as keyof Filters, isActive),
+        }),
+        {},
+      ),
+    }),
+    [handleFilterChange],
+  )
 
   return (
     <div className="inset-0 absolute">
@@ -127,28 +181,21 @@ const Home: NextPage = (props) => {
           window.dataLayer = window.dataLayer || [];
           function gtag(){window.dataLayer.push(arguments);}
           gtag('js', new Date());
-
-          gtag('config', 'GA_MEASUREMENT_ID');
+          gtag('config', '${process.env.NEXT_PUBLIC_GTAG_ID}');
         `}
       </Script>
 
       <FilterBar
         className="absolute bottom-0 p-4 flex-wrap-reverse z-[999999]"
-        booleanFilters={Object.keys(filters).reduce((acc, cur) => {
-          return {
-            ...acc,
-            [cur]: (isActive: boolean) =>
-              setFilters({ ...filters, [cur]: isActive }),
-          }
-        }, {})}
+        {...filterBarProps}
       />
 
       <Navbar
         theme={theme ?? 'light'}
         onToggleTheme={setTheme}
-        onStatsClick={() => statsModal.open()}
-        onAboutClick={() => aboutModal.open()}
-        onSubscribeClick={() => subscribeModal.open()}
+        onStatsClick={statsModal.open}
+        onAboutClick={aboutModal.open}
+        onSubscribeClick={subscribeModal.open}
       />
 
       <StatsModal {...statsModal} hpaiCases={filteredHpaiCaseGeometries} />
@@ -178,11 +225,12 @@ const Home: NextPage = (props) => {
       <div className="h-full w-full">
         {!hpaiCaseGeometries && <Loading />}
         <ClientSideMap
-          hpaiCaseGeometries={filteredHpaiCaseGeometries}
+          hpaiCaseGeometries={mapHpaiCaseGeometries}
           onCountyClick={handleSelection}
           theme={theme}
         />
       </div>
+
       <BMAC />
     </div>
   )

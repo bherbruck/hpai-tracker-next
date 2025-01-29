@@ -15,56 +15,40 @@ type StatsModalProps = ModalProps & {
   hpaiCases?: HpaiCaseGeometry[]
 }
 
-// Memoized sorting function
-const useSortedData = <T,>(
-  data: T[],
-  compareFn: (a: T, b: T) => number,
-  deps: any[] = [],
-) => {
-  return useMemo(() => [...data].sort(compareFn), [data, ...deps])
-}
-
-// Optimized date comparison function
-const dateCompare = (a: Date, b: Date) => a.valueOf() - b.valueOf()
-
-// Optimized flattening function with Set for deduplication
 const useFlattenedHpaiCases = (hpaiCases: HpaiCaseGeometry[]) => {
   return useMemo(() => {
-    const cases = new Set(hpaiCases?.flatMap(({ cases }) => cases))
-    return Array.from(cases).sort((a, b) =>
-      dateCompare(new Date(b.dateConfirmed), new Date(a.dateConfirmed)),
-    )
+    if (!hpaiCases?.length) return []
+    return hpaiCases
+      .flatMap(({ cases }) => cases)
+      .sort((a, b) => b.dateConfirmed.valueOf() - a.dateConfirmed.valueOf())
   }, [hpaiCases])
 }
 
-// Optimized chart data processing
 const useChartHpaiCases = (hpaiCases: HpaiCase[]): CumulativeHpaiCase[] => {
   return useMemo(() => {
     if (!hpaiCases.length) return []
 
-    // Sort once at the beginning
-    const sorted = hpaiCases.sort((a, b) =>
-      dateCompare(new Date(a.dateConfirmed), new Date(b.dateConfirmed)),
+    const sorted = [...hpaiCases].sort(
+      (a, b) => a.dateConfirmed.valueOf() - b.dateConfirmed.valueOf(),
     )
 
     const startDate = new Date(sorted[0].dateConfirmed)
-    const endDate = new Date()
+    const lastDate = new Date(sorted[sorted.length - 1].dateConfirmed)
+    const endDate = new Date(Math.max(lastDate.getTime(), new Date().getTime()))
+
     const dates = fillDates(startDate, endDate)
 
-    // Create a Map for faster lookups
-    const dateMap = new Map<number, number>()
+    const dateMap = new Map<string, number>()
 
-    // Group by date in a single pass
     sorted.forEach(({ dateConfirmed, flockSize = 0 }) => {
-      const dateValue = new Date(dateConfirmed).valueOf()
-      dateMap.set(dateValue, (dateMap.get(dateValue) ?? 0) + (flockSize ?? 0))
+      const dateStr = new Date(dateConfirmed).toISOString().split('T')[0]
+      dateMap.set(dateStr, (dateMap.get(dateStr) ?? 0) + (flockSize ?? 0))
     })
 
-    // Calculate cumulative sum in a single pass
     let cumSum = 0
     return dates.map((date) => {
-      const dateValue = date.valueOf()
-      cumSum += dateMap.get(dateValue) ?? 0
+      const dateStr = date.toISOString().split('T')[0]
+      cumSum += dateMap.get(dateStr) ?? 0
       return {
         dateConfirmed: date,
         flockSize: cumSum,
@@ -73,7 +57,6 @@ const useChartHpaiCases = (hpaiCases: HpaiCase[]): CumulativeHpaiCase[] => {
   }, [hpaiCases])
 }
 
-// Optimized stats calculation using Set for unique values
 const useHpaiStats = (hpaiCases: HpaiCase[]): Stats => {
   return useMemo(() => {
     const states = new Set<string>()
@@ -81,8 +64,8 @@ const useHpaiStats = (hpaiCases: HpaiCase[]): Stats => {
     let totalDeaths = 0
 
     hpaiCases.forEach(({ state, county, flockSize = 0 }) => {
-      states.add(state)
-      counties.add(`${state}-${county}`)
+      if (state) states.add(state)
+      if (state && county) counties.add(`${state}-${county}`)
       totalDeaths += flockSize ?? 0
     })
 
