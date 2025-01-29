@@ -20,7 +20,7 @@ export const SelectionModal: FC<SelectionModalProps> = ({
       <h3 className="font-bold text-lg pb-4">
         {county} {state}
       </h3>
-      <table className="table table-fixed w-full h-full">
+      <table className="table w-full h-full">
         <thead>
           <tr>
             <th>Confirmed</th>
