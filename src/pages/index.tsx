@@ -26,14 +26,14 @@ type Filters = {
 
 const filterHpaiCases = (
   hpaiCases: HpaiCaseGeometry[],
-  filters: string[]
+  filters: string[],
 ): HpaiCaseGeometry[] => {
   if (filters.length === 0) return hpaiCases
   const filteredGeometries = hpaiCases.reduce((acc, cur) => {
     const filteredCases = {
       ...cur,
       cases: cur.cases.filter((hpaiCase) =>
-        filters.some((filter) => hpaiCase.flockType.includes(filter))
+        filters.some((filter) => hpaiCase.flockType.includes(filter)),
       ),
     } as HpaiCaseGeometry
 
@@ -75,7 +75,7 @@ const Home: NextPage = (props) => {
             : null,
         })),
       }))
-    }
+    },
   )
 
   const [filters, setFilters] = useState<Filters>({
@@ -92,9 +92,9 @@ const Home: NextPage = (props) => {
         hpaiCaseGeometries ?? [],
         Object.entries(filters)
           .filter(([, isActive]) => isActive)
-          .map(([key]) => key)
+          .map(([key]) => key),
       ),
-    [filters, hpaiCaseGeometries]
+    [filters, hpaiCaseGeometries],
   )
 
   const [selectedHpaiCases, setSelectedHpaiCases] = useState<HpaiCaseGeometry>()
@@ -105,11 +105,6 @@ const Home: NextPage = (props) => {
   }
 
   const { theme, setTheme } = useTheme()
-
-  useDebugValue(hpaiCaseGeometries)
-  useDebugValue(filteredHpaiCaseGeometries)
-  useDebugValue(selectedHpaiCases)
-  useDebugValue(theme)
 
   return (
     <div className="inset-0 absolute">
