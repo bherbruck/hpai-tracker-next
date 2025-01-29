@@ -51,7 +51,7 @@ const useProcessedHpaiCases = (
     flatCases.forEach(({ state, county, flockSize = 0 }) => {
       if (state) states.add(state)
       if (state && county) counties.add(`${state}-${county}`)
-      totalDeaths += flockSize
+      totalDeaths += flockSize ?? 0
     })
 
     const stats: Stats = {
@@ -84,7 +84,7 @@ const useProcessedHpaiCases = (
 
     sortedAscCases.forEach(({ dateConfirmed, flockSize = 0 }) => {
       const dateStr = dateConfirmed.toISOString().split('T')[0]
-      dateMap.set(dateStr, (dateMap.get(dateStr) ?? 0) + flockSize)
+      dateMap.set(dateStr, (dateMap.get(dateStr) ?? 0) + (flockSize ?? 0))
     })
 
     let cumSum = 0
