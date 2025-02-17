@@ -74,6 +74,7 @@ const handler: NextApiHandler = async (req, res) => {
             to: ['no-reply@hpai-tracker.com'],
             bcc: chunk, // Use the current chunk of subscribers
             subject: subject,
+            // @ts-ignore
             react: AlertEmail({
               websiteUrl: websiteUrl,
               hpaiCases: newHpaiCases,

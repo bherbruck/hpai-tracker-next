@@ -38,6 +38,7 @@ const handler: NextApiHandler<UserResponse> = async (req, res) => {
         from: 'HPAI Tracker <no-reply@hpai-tracker.com>',
         to: user.email,
         subject: 'Confirm your HPAI Tracker subscription',
+        // @ts-ignore
         react: SubscribeEmail({ confirmationUrl }),
       })
     } catch (error) {
