@@ -6,7 +6,7 @@
     "seed": "ts-node prisma/seed"
   },
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbopack",
     "build": "prisma generate && prisma migrate deploy && prisma db seed && next build",
     "migrate": "prisma generate && prisma migrate deploy && prisma db seed",
     "start": "next start",
@@ -19,27 +19,27 @@
     "axios": "^1.5.1",
     "cheerio": "^1.0.0-rc.12",
     "clsx": "^2.1.1",
-    "next": "^15.1.6",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "next": "15.1.7",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
     "resend": "^1.1.0",
     "tailwind-merge": "^2.6.0"
   },
   "devDependencies": {
     "@heroicons/react": "^2.0.18",
     "@tailwindcss/typography": "^0.5.10",
+    "@types/leaflet": "^1.9.16",
     "@types/node": "^20.8.4",
     "@types/nodemailer": "^6.4.11",
     "@types/papaparse": "^5.3.9",
-    "@types/react": "18.2.28",
-    "@types/react-dom": "^18.2.13",
-    "@types/react-leaflet": "^2.8.3",
+    "@types/react": "19.0.10",
+    "@types/react-dom": "19.0.4",
     "@types/uuid": "^9.0.5",
     "autoprefixer": "^10.4.16",
     "daisyui": "^5.0.0-beta.2",
     "email-validator": "^2.0.4",
     "eslint": "8.51.0",
-    "eslint-config-next": "^13.5.4",
+    "eslint-config-next": "15.1.7",
     "geojson": "^0.5.0",
     "leaflet": "^1.9.4",
     "node-fetch": "^3.3.2",
@@ -49,7 +49,7 @@
     "postcss": "^8.4.31",
     "prettier": "^3.0.3",
     "prisma": "^5.4.2",
-    "react-leaflet": "^4.2.1",
+    "react-leaflet": "^5.0.0",
     "react-use": "^17.4.0",
     "recharts": "^2.8.0",
     "swr": "^2.2.4",
@@ -58,5 +58,9 @@
     "tsx": "^4.19.2",
     "typescript": "^5.2.2",
     "uuid": "^9.0.1"
+  },
+  "overrides": {
+    "react": "$react",
+    "react-dom": "$react"
   }
 }
