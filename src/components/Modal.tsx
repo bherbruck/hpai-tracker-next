@@ -17,9 +17,14 @@ export const Modal: FC<ModalProps> = ({
 }) => {
   const [isLoaded, setLoaded] = useState(false)
 
-  useEffect(() => setLoaded(true), [])
+  useEffect(() => {
+    setLoaded(true)
+    return () => setLoaded(false)
+  }, [])
 
-  return isLoaded ? (
+  if (!isLoaded || !isOpen) return null
+
+  return createPortal(
     <dialog
       className={twMerge('modal', clsx({ 'modal-open': isOpen }))}
       onKeyDown={({ key }) => key === 'Escape' && close()}
@@ -33,7 +38,8 @@ export const Modal: FC<ModalProps> = ({
         </button>
         {children}
       </div>
-      <div className="modal-backdrop backdrop-blur" onClick={close} />
-    </dialog>
-  ) : null
+      <div className="modal-backdrop" onClick={close} />
+    </dialog>,
+    document.body,
+  )
 }
