@@ -1,6 +1,8 @@
 import { createPortal } from 'react-dom'
 import { type FC, type ReactNode, useState, useEffect } from 'react'
 import { useModal } from '$hooks/useModal'
+import { twMerge } from 'tailwind-merge'
+import clsx from 'clsx'
 
 export type ModalProps = ReturnType<typeof useModal> & {
   className?: string
@@ -19,7 +21,7 @@ export const Modal: FC<ModalProps> = ({
 
   return isLoaded ? (
     <dialog
-      className={`modal ${isOpen ? 'modal-open' : null}`}
+      className={twMerge('modal', clsx({ 'modal-open': isOpen }))}
       onKeyDown={({ key }) => key === 'Escape' && close()}
     >
       <div className={`modal-box ${className}`}>
